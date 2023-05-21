@@ -36,13 +36,13 @@ UsersData = mongoose.model("UsersData", usersDataSchema);
 //connection with frontend
 
 //the methods have some caveat write comments regarding them
-// app.use(
-//   cors({
-//     origin: process.env.FRONTEND_URI,
-//     methods: "GET,POST,PUT,DELETE,OPTIONS",
-//     credentials: true,
-//   })
-// );
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URI,
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    credentials: true,
+  })
+);
 
 app.use(express.static(path.resolve(__dirname, "../client/build")));
 
