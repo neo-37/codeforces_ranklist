@@ -10,14 +10,14 @@ const mongoose = require("mongoose");
 require("./auth");
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/ranklistDB")
+  .connect(process.env.MONGO_URI)
   .catch((err) => console.log("error connecting to ranklistDb", err));
 
 //.on is an event listener in node js,listening to error event on moongoose connection[0]
 //.once is also event listener but it listens to the open event just once after the initial connection
 const db = mongoose.connection;
 db.once("open", function () {
-  console.log("we are connected to local database!");
+  console.log("we are connected to cloud database!");
 });
 db.on("error", (err) => console.log("error on mongoose connection[0]", err));
 
