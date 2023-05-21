@@ -47,7 +47,7 @@ function Leaderboard(props) {
         >
           <i>
             <b>
-              <u>Ranklists</u>
+              <u>Ranklist</u>
             </b>
           </i>
         </div>

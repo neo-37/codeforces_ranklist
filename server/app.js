@@ -36,13 +36,16 @@ UsersData = mongoose.model("UsersData", usersDataSchema);
 //connection with frontend
 
 //the methods have some caveat write comments regarding them
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URI,
-    methods: "GET,POST,PUT,DELETE,OPTIONS",
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: process.env.FRONTEND_URI,
+//     methods: "GET,POST,PUT,DELETE,OPTIONS",
+//     credentials: true,
+//   })
+// );
+
+app.use(express.static(path.resolve(__dirname, "../client/build")));
+
 
 app.use(
   cookieSession({
@@ -481,6 +484,11 @@ app.get("/is_admin", (req, res) => {
       res.send(data);
     });
   else res.send(false);
+});
+
+// Catch-all route (should be defined after all specific routes)
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../client/build/index.html"));
 });
 
 app.listen(3000, () => {

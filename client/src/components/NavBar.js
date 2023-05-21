@@ -16,9 +16,8 @@ function NavBar(props) {
       const { data } = await axios.get(`${url}/user_g_info`, {
         withCredentials: true,
       });
-      console.log("new guser",data.user);
+      console.log("new guser", data.user);
       props.setGUser(data.user);
-
     } catch (err) {
       console.log(err);
     }
@@ -79,7 +78,7 @@ function NavBar(props) {
                     <img
                       src={props.g_user.picture}
                       alt="User pic"
-                      referrerPolicy="no-referrer"//use with google content url else sometimes the img doesn't load
+                      referrerPolicy="no-referrer" //use with google content url else sometimes the img doesn't load
                       style={{
                         height: "80px",
                         width: "80px",
@@ -130,7 +129,6 @@ function NavBar(props) {
               )}
 
               <ul className="navbar-nav justify-content-end flex-grow-1 pe-3">
-
                 <li className="nav-item" data-bs-dismiss="offcanvas">
                   <Link to="/" className="nav-link">
                     Leaderboard
@@ -164,6 +162,9 @@ function NavBar(props) {
                       <button
                         className="nav-link"
                         onClick={googleAuthOut}
+                        type="button"
+                        data-bs-dismiss="offcanvas"
+                        aria-label="Close" //just acts like alternate name in image tag
                       >
                         Log Out
                       </button>
@@ -174,6 +175,9 @@ function NavBar(props) {
                     <button
                       className="nav-link"
                       onClick={googleAuth}
+                      type="button"
+                      data-bs-dismiss="offcanvas"
+                      aria-label="Close" //just acts like alternate name in image tag
                     >
                       Login
                     </button>
