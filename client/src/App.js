@@ -21,7 +21,7 @@ function App() {
 
   const getArr = async () => {
     axios
-      .get(`${url}/user_list_current`)
+      .get(`${url}/user_list`)
       .then((res) => {
         setArr(res.data);
         setCanShowRing(false);

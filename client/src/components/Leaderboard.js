@@ -16,7 +16,7 @@ function Leaderboard(props) {
 
     try {
       axios
-        .post(`${url}/remove_user_from_list`, { cf_handle_email: val })
+        .post(`${url}/remove_user_from_list`, { cf_handle_email: val ,email: props.g_user ? props.g_user.email : ""})//we get credentials only with get
         .then((res) => {
           props.setArr(props.list.filter((data) => data.email !== val));
         })

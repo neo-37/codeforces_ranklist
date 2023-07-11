@@ -76,7 +76,6 @@ function Adminpage(props) {
     ) {
       console.log("there");
 
-      // update in DB
       axios
         .post(`${url}/add_admin`, {
           add_email: email,

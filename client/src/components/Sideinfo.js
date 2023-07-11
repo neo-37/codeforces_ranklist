@@ -14,13 +14,11 @@ function Sideinfo(props) {
     } catch (err) {
       console.log("remove_cf_user fn", err);
     } finally {
-      console.log('pops.getArr in side info')
+      console.log('props.getArr in side info')
       await props.getArr();//ending the get the request finally won't be activated so atleast do a res.end()
     }
-    // NOTE: remove from database
   };
   const handleSubmit = async (e) => {
-    // NOTE: actual fetch and save in database
     e.preventDefault();
     try {
       console.log("sideinfo event", e.target.cf_id);
@@ -32,7 +30,9 @@ function Sideinfo(props) {
       });
       console.log("Cf user");
       console.log(data.user);
+      
       props.setCFUser(data.user);
+      
       props.getArr();
     } catch (err) {
       console.log(err);
