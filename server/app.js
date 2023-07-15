@@ -333,6 +333,7 @@ app.get("/new_cf_user", (req, res) => {
         });
       });
     }
+    else
     res.status(404).json({ error: true, message: "input not found" });
   } else {
     res.status(403).json({ error: true, message: "Not Authorized" });
