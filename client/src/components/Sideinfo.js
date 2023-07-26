@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import Announcement from "./Announcement.js";
 function Sideinfo(props) {
   const url = process.env.REACT_APP_API_URL;
 
@@ -94,6 +94,9 @@ function Sideinfo(props) {
           <></>
         )}
       </div>
+      <Announcement  
+              isAdmin={props.isAdmin}
+              />
     </>
   );
 }

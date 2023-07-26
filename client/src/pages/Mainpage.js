@@ -37,6 +37,7 @@ function Mainpage(props) {
               setCFUser={props.setCFUser}
               getArr={props.getArr}
               setArr={props.setArr}
+              isAdmin={props.isAdmin}
             />
           
         </div>

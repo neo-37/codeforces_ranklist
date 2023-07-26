@@ -6,7 +6,7 @@ const cookieSession = require("cookie-session");
 const app = express();
 var cors = require("cors");
 const mongoose = require("mongoose");
-
+const fs = require("fs");
 require("./auth");
 
 mongoose
@@ -62,6 +62,14 @@ const adminSchema = new mongoose.Schema({
 
 AdminsData = mongoose.model("AdminsData", adminSchema);
 
+const announcementSchema = new mongoose.Schema({
+  image: {
+    type: String,
+  },
+});
+
+AnnouncementsData = mongoose.model("AnnouncementsData", announcementSchema);
+
 //connection with frontend
 
 //the methods have some caveat write comments regarding them
@@ -87,8 +95,11 @@ const { readFile, writeFile } = require("fs");
 const CF_API = "https://codeforces.com/api/user.info?handles=";
 
 // Middleware
-app.use(express.json());
 //It parses incoming requests with JSON payloads and is based on body-parser.
+//app.use(express.json());
+// Increase the payload size limit (e.g., 10MB)
+app.use(express.json({ limit: "10mb" }));
+
 app.use(express.urlencoded({ extended: true }));
 //express.urlencoded() is a built-in middleware in Express.js.
 //The main objective of this method is to parse the incoming request with urlencoded payloads and is based upon the body-parser.
@@ -332,9 +343,7 @@ app.get("/new_cf_user", (req, res) => {
           user: cf_user,
         });
       });
-    }
-    else
-    res.status(404).json({ error: true, message: "input not found" });
+    } else res.status(404).json({ error: true, message: "input not found" });
   } else {
     res.status(403).json({ error: true, message: "Not Authorized" });
   }
@@ -463,6 +472,42 @@ app.get("/is_admin", (req, res) => {
       res.send(data);
     });
   else res.send(false);
+});
+
+app.post("/announcement", async (req, res) => {
+  const img = req.body.image;
+  await AnnouncementsData.create({ image: img })
+    .then((reply) => {
+      console.log("/accouncement post", reply._id);
+    })
+    .catch((err) => {
+      console.error("/accouncment post", err);
+    });
+  res.status(200).json({ message: "Image stored successfully!" });
+});
+
+app.get("/announcement", async (req, res) => {
+  // Fetch the image document from MongoDB using the provided imageId
+  const images = await AnnouncementsData.find();
+
+  if (images.length > 0) {
+    const imageString = images[0];
+    console.log(imageString._id);
+    res
+      .json({
+        img: imageString.image
+      });
+  } else res.status(404).json({ img: "no img present" });
+});
+
+app.get("/delete_announcement", async (req,res) => {
+  AnnouncementsData.deleteOne({})
+  .then((reply)=>
+  {
+    console.log('delete img',reply);
+  })
+
+  res.status(200).json({ message: "Image deleted successfully!" });
 });
 
 // Catch-all route (should be defined after all specific routes)
