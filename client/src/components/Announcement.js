@@ -13,9 +13,6 @@ function Announcement({ isAdmin }) {
   const [announcementImg, setAnnouncementImg] = useState(null);
 
   const onDrop = useCallback((acceptedFiles) => {
-    // setAnnoucementImage(URL.createObjectURL(acceptedFiles))
-    // // Handle the dropped file(s) here
-    // console.log('Uploaded file:', acceptedFiles[0]);
     const file = acceptedFiles[0];
 
     const reader = new FileReader();
@@ -54,26 +51,17 @@ function Announcement({ isAdmin }) {
     fetchImg();
   }, []);
 
-  const deleteAnnouncment=()=>{
+  const deleteAnnouncment = () => {
     axios
-    .get(`${url}/delete_announcement`)
-    .then(setAnnouncementImg())
-    .catch((error) => {
-      console.error("delete annoucement error", error);
-    });
-  }
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+      .get(`${url}/delete_announcement`)
+      .then(setAnnouncementImg())
+      .catch((error) => {
+        console.error("delete annoucement error", error);
+      });
+  };
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
   return (
     <>
-      {/* <div {...getRootProps()} className={`image-uploader ${isDragActive ? 'active' : ''}`}>
-      <input {...getInputProps()} />
-      {
-        isDragActive ?
-          <p>Drop the image here...</p> :
-          <p>Drag and drop an image here, or click to select a file</p>
-      }
-    </div> */}
-
       <div style={{ marginTop: "20px" }}>
         <div className="card">
           <div
@@ -87,26 +75,60 @@ function Announcement({ isAdmin }) {
             <h5> Announcement </h5>
           </div>
           {announcementImg ? (
-            <img
-              src={announcementImg}
-              className="card-img-bottom"
-              alt="uploaded_img"
-            />
-          ) : (
-              isAdmin ? (
-                <div {...getRootProps()} className="image-uploader">
-                  <input {...getInputProps()} />
+            <>
+              <img
+                src={announcementImg}
+                className="card-img-bottom"
+                alt="uploaded_img"
+                 data-bs-toggle="modal"
+                data-bs-target="#announcementModal"
+                type="button"
+              />
 
-                  <p>Drag and drop an image here, or click to select a file</p>
+              <div
+                className="modal fade"
+                id="announcementModal"
+                tabindex="-1"
+                aria-labelledby="announcementModalLabel"
+                aria-hidden="true"
+              >
+                <div className="modal-dialog modal-xl modal-dialog-centered">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h1 className="modal-title fs-5" id="announcementModalLabel">
+                        Scan the QR code to register
+                      </h1>
+                      <button
+                        type="button"
+                        className="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div className="modal-body">
+                      <img
+                        src={announcementImg}
+                        className="card-img-bottom"
+                        alt="uploaded_img"
+                      />
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <></>
-              )
+              </div>
+            </>
+          ) : isAdmin ? (
+            <div {...getRootProps()} className="image-uploader">
+              <input {...getInputProps()} />
+
+              <p>Drag and drop an image here, or click to select a file</p>
+            </div>
+          ) : (
+            <></>
           )}
         </div>
       </div>
       <div style={{ display: "flex", justifyContent: "center" }}>
-        {isAdmin&&announcementImg ? (
+        {isAdmin && announcementImg ? (
           <button
             type="button"
             className="btn btn-danger btn-sm"
