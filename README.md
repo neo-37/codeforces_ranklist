@@ -1,5 +1,8 @@
 ﻿# codeforces_ranklist
-![image](https://github.com/neo-37/codeforces_ranklist/assets/85379575/b8eb2601-1de0-46be-a486-e9cc01c95fcd)
-![image](https://github.com/neo-37/codeforces_ranklist/assets/85379575/47db9390-5c70-4871-8867-aa9260e6710c)
-![image](https://github.com/neo-37/codeforces_ranklist/assets/85379575/47a48434-c96a-4056-9d94-f46f6ec1869f)
+![image](https://github.com/neo-37/codeforces_ranklist/assets/85379575/1d7341a1-1161-4d46-ae0d-42d431a16efc)
+![image](https://github.com/neo-37/codeforces_ranklist/assets/85379575/ffe9c3f3-79f8-4e20-845b-383c9c4b41cd)
+![image](https://github.com/neo-37/codeforces_ranklist/assets/85379575/654b708d-a727-40bc-a213-cebff26e1dbf)
+![image](https://github.com/neo-37/codeforces_ranklist/assets/85379575/c470b487-34f2-40f4-9f7f-e0c296dae4d8)
+
+
 
