@@ -37,7 +37,7 @@ function NavBar(props) {
             className="navbar-brand"
             style={{ fontFamily: "Oswald, sans-serif", fontSize: "35px" }}
           >
-            Kodewreck
+            CodersNexus
           </h1>
 
           <button

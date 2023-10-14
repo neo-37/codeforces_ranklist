@@ -10,7 +10,7 @@ const fs = require("fs");
 require("./auth");
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI_LOCAL)
   .catch((err) => console.log("error connecting to ranklistDb", err));
 
 //.on is an event listener in node js,listening to error event on moongoose connection[0]

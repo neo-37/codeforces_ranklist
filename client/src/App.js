@@ -100,7 +100,7 @@ function App() {
           className="row"
           style={{ height: "92%", margin: "0", padding: "0" }}
         >
-          {/* it is not allows to use anything other than route inside routes */}
+          {/* it is not allowed to use anything other than route inside routes */}
           <Routes>
             {/* "*" will match any URL that doesn't match any of the other routes in your application*/}
             <Route path="*" element={<UrlNotFound />} />
