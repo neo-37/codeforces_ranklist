@@ -2,15 +2,18 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
 import Mainpage from "./pages/Mainpage";
-import Adminpage from "./pages/Adminpage";
+import Adminpage from "./pages/AdminPage";
 import UnauthorizedAccess from "./components/UnauthorizedAccess";
 import UrlNotFound from "./components/UrlNotFound";
 import axios from "axios";
-import {RingLoader,BeatLoader} from "react-spinners";
+import { RingLoader, BeatLoader } from "react-spinners";
+import AllBlogsPage from "./pages/BlogPages/AllBlogsPage"
+import EditorPage from "./pages/BlogPages/TextEditorPage";
+import MyBlogsPage from "./pages/BlogPages/MyBlogsPage";
 
 function App() {
   const [arr, setArr] = useState([]);
-  const [g_user, setGUser] = useState(null);
+  const [g_user, setGUser] = useState(null); //contains name,picture,email
   const [cf_user, setCFUser] = useState(null);
   const [adArr, setAdArr] = useState([]);
   const [isAdmin, setAdmin] = useState(false);
@@ -72,7 +75,6 @@ function App() {
 
   // Set Time out
 
-
   useEffect(() => {
     getArr();
     getCFuser();
@@ -91,7 +93,7 @@ function App() {
         {/* any component should be inside this router tag only */}
         <div
           className="row"
-          style={{ height: "8%", margin: "0", padding: "0" }}
+          style={{ height: "8.7%", margin: "0", padding: "0" }}
         >
           <NavBar g_user={g_user} setGUser={setGUser} isAdmin={isAdmin} />
         </div>
@@ -102,7 +104,7 @@ function App() {
         >
           {/* it is not allowed to use anything other than route inside routes */}
           <Routes>
-            {/* "*" will match any URL that doesn't match any of the other routes in your application*/}
+            {/* "*" will match any URL that doesn't match any of the other routes in your application,but not in descendant routes*/}
             <Route path="*" element={<UrlNotFound />} />
 
             <Route
@@ -161,6 +163,24 @@ function App() {
                 )
               }
             />
+
+            <Route
+              path="/blogs/*" // * is imp if we want to create more children routes
+              element={//could create a new component for that returned routes but no need
+                <Routes>
+                  {/* just like we handled non matching in the ancestor */}
+
+                  <Route path="*" element={<UrlNotFound />} />
+
+                  <Route path="/" element={<AllBlogsPage g_user={g_user} cf_user={cf_user}/>}></Route>
+                  <Route
+                    path="/create-article"
+                    element={<EditorPage g_user={g_user} cf_user={cf_user} />}
+                  />
+                  <Route path="/my-blogs" element={<MyBlogsPage g_user={g_user} cf_user={cf_user}/>}></Route>
+                </Routes>
+              }
+            ></Route>
           </Routes>
         </div>
       </Router>

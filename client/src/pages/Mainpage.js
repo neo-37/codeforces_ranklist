@@ -1,7 +1,7 @@
 import Leaderboard from "../components/Leaderboard";
 import Sideinfo from "../components/Sideinfo";
 
-import { useState } from "react";
+
 import "./Mainpage.css";
 
 function Mainpage(props) {

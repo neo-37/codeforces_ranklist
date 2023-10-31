@@ -1,0 +1,45 @@
+body {
+    background: #f3f1f2;
+    font-family: sans-serif;
+  }
+  
+  /* all parts of css file act like a single document so,if we want to have changes to a particular page then ,
+  we need to make changes accordingly*/
+  .text-editor{
+    margin: 1rem 0rem 4rem;
+  }
+  
+  .ql-container {
+    border-bottom-left-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+    background: #fefcfc;
+    /* max-height: 78vh; */
+  }
+  
+  /* Snow Theme */
+  .ql-snow.ql-toolbar {
+    display: block;
+    background: #eaecec;
+    border-top-left-radius: 0.5em;
+    border-top-right-radius: 0.5em;
+  }
+  
+  .ql-editor {
+    height: 78vh;
+  }
+
+  .preview-article{
+    
+    /* word-wrap: break-word; */
+    border-bottom-left-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+    background: #fefcfc;
+    /* height: 78vh; */
+    margin-bottom: 4rem;
+  }
+
+  .save-button{
+    margin-left: 46%;
+    margin-top: 0.5rem;
+  }
+  

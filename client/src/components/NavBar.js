@@ -135,6 +135,11 @@ function NavBar(props) {
                   </Link>
                 </li>
                 <li className="nav-item" data-bs-dismiss="offcanvas">
+                  <Link to="/blogs" className="nav-link">
+                    Educational Blogs
+                  </Link>
+                </li>
+                <li className="nav-item" data-bs-dismiss="offcanvas">
                   <a
                     className="nav-link"
                     href="https://kodewreckpractice.contest.codeforces.com"

@@ -9,6 +9,8 @@ const mongoose = require("mongoose");
 const fs = require("fs");
 require("./auth");
 
+const ArticlesData = require("./db_models/ArticleModel");
+
 mongoose
   .connect(process.env.MONGODB_URI_LOCAL)
   .catch((err) => console.log("error connecting to ranklistDb", err));
@@ -43,7 +45,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-UsersData = mongoose.model("UsersData", userSchema);
+const UsersData = mongoose.model("user", userSchema);
 
 const adminSchema = new mongoose.Schema({
   email: {
@@ -60,7 +62,7 @@ const adminSchema = new mongoose.Schema({
   },
 });
 
-AdminsData = mongoose.model("AdminsData", adminSchema);
+const AdminsData = mongoose.model("admin", adminSchema);
 
 const announcementSchema = new mongoose.Schema({
   image: {
@@ -68,7 +70,7 @@ const announcementSchema = new mongoose.Schema({
   },
 });
 
-AnnouncementsData = mongoose.model("AnnouncementsData", announcementSchema);
+const AnnouncementsData = mongoose.model("announcement", announcementSchema);
 
 //connection with frontend
 
@@ -91,6 +93,7 @@ app.use(
   })
 );
 const { readFile, writeFile } = require("fs");
+const { auth } = require("google-auth-library");
 
 const CF_API = "https://codeforces.com/api/user.info?handles=";
 
@@ -195,7 +198,7 @@ function update_list() {
     });
 }
 
-setInterval(update_list, 5 * 60 * 1000);
+setInterval(update_list, 10 * 60 * 1000);
 
 app.get("/logout", function (req, res) {
   req.logout();
@@ -212,7 +215,7 @@ app.get("/user_list", (req, res) => {
       );
     })
     .catch((err) => {
-      console.log("/user_list get", err);
+      console.log("user_list get", err);
       res.send([]);
     });
 });
@@ -239,7 +242,7 @@ function check_admin(guser, cb) {
     });
 }
 
-function verify_admin(guser) {
+async function verify_admin(guser) {
   // verify if admin present
   AdminsData.updateOne(
     { email: guser.email },
@@ -252,9 +255,9 @@ function verify_admin(guser) {
       console.log("verify_admin", err);
     });
 }
-app.get("/user_g_info", (req, res) => {
+app.get("/user_g_info", async (req, res) => {
   if (req.user) {
-    verify_admin(req.user._json);
+    await verify_admin(req.user._json);
     res.status(200).json({
       error: false,
       message: "Successfully Loged In",
@@ -388,25 +391,16 @@ app.post("/remove_user_from_list", (req, res) => {
 });
 
 function add_admin(my_email) {
-  AdminsData.find({ email: my_email })
-    .then((users) => {
-      if (users.length == 0) {
-        AdminsData.updateOne(
-          { email: my_email },
-          {
-            email: my_email,
-            verified: false,
-            name: "",
-          },
-          { upsert: true } //acts as insert if no match is found
-        )
-          .then((result) => {
-            console.log("add_admin", result);
-          })
-          .catch((err) => {
-            console.error("add_admin", err);
-          });
-      }
+  AdminsData.updateOne(
+    { email: my_email },
+    {
+      verified: false,
+      name: "",
+    },
+    { upsert: true } //act as insert if no match is found
+  )
+    .then((result) => {
+      console.log("add_admin", result);
     })
     .catch((err) => {
       console.error("add_admin", err);
@@ -493,21 +487,61 @@ app.get("/announcement", async (req, res) => {
   if (images.length > 0) {
     const imageString = images[0];
     console.log(imageString._id);
-    res
-      .json({
-        img: imageString.image
-      });
+    res.json({
+      img: imageString.image,
+    });
   } else res.status(404).json({ img: "no img present" });
 });
 
-app.get("/delete_announcement", async (req,res) => {
-  AnnouncementsData.deleteOne({})
-  .then((reply)=>
-  {
-    console.log('delete img',reply);
-  })
+app.get("/delete_announcement", async (req, res) => {
+  AnnouncementsData.deleteOne({}).then((reply) => {
+    console.log("delete img", reply);
+  });
 
   res.status(200).json({ message: "Image deleted successfully!" });
+});
+
+app.post("/save_article", (req, res) => {
+  console.log("save article", req.body);
+
+  const key_title = req.body.title.trim().toLowerCase();
+  const key = req.body.email + key_title;
+  console.log(key);
+  ArticlesData.updateOne(
+    { unique_key: key },
+    {
+      email: req.body.email,
+      author: req.body.author,
+      title: req.body.title,
+      ops_array: req.body.ops_array,
+      article_html: req.body.html_string,
+    },
+    { upsert: true } //act as insert if no match is found
+  )
+    .then((result) => {
+      console.log("article saved", result);
+    })
+    .catch((err) => {
+      console.error("save_article post", err);
+    });
+
+  res.end(); //always end a request by send,end,status etc,else it doesn't end by itself
+  //end gives status 200 with empty data
+});
+
+app.get("/retrieve_article", (req, res) => {
+  match = {};
+  if (req.user) match = { email: req.user._json.email };
+
+  ArticlesData.find(match)
+    .then((result) => {
+      console.log("article retrieved", result);
+      res.send(result);
+      // res.end();
+    })
+    .catch((err) => {
+      console.error("retrieve_article pt", err);
+    });
 });
 
 // Catch-all route (should be defined after all specific routes)

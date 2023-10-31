@@ -88,7 +88,7 @@ function Announcement({ isAdmin }) {
               <div
                 className="modal fade"
                 id="announcementModal"
-                tabindex="-1"
+                tabIndex="-1"
                 aria-labelledby="announcementModalLabel"
                 aria-hidden="true"
               >
