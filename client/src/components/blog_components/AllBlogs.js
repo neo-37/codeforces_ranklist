@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import MyBlogs from "./MyBlogsPage";
-import BlogCard from "../../components/blog_components/BlogCard";
 import { BarLoader } from "react-spinners";
-import { Link } from "react-router-dom";
-import Blogs from "../../components/blog_components/Blogs";
-import BlogNavbar from "../../components/blog_components/BlogNavigation";
+import { Link ,useParams} from "react-router-dom";
+import Blogs from "./Blogs";
 
-function BlogPage({ g_user, cf_user }) {
+function BlogPage({ g_user, cf_user ,setRenderBothBlogs, setBlogButtonText}) {
   const [articles, setarticles] = useState([]);
 
 
@@ -28,8 +25,11 @@ function BlogPage({ g_user, cf_user }) {
 
   useEffect(() => {
     retrieveArticleFromServer();
+    setRenderBothBlogs(false);
+    setBlogButtonText("My Blogs");
   }, []);
-
+const {trial}=useParams()
+console.log(trial)
   return (
     <>
       {articles.length === 0 ? (
@@ -43,10 +43,8 @@ function BlogPage({ g_user, cf_user }) {
           }}
         />
       ) : (
-        <div style={{ marginTop: "2rem" }}>
-          <BlogNavbar blog_button_text={"My Blogs"} render_both_blog_buttons={false}/>
-
-         <Blogs articles={articles}/>
+        <div style={{ marginTop: "2rem" ,paddingBottom:"2rem"}}>
+         <Blogs articles={articles} />
         </div>
       )}
     </>

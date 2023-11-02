@@ -4,18 +4,23 @@ import BlotFormatter from "quill-blot-formatter";
 import { QuillDeltaToHtmlConverter } from "quill-delta-to-html";
 import htmlParser from "html-react-parser";
 import "quill/dist/quill.snow.css";
+import { useLocation } from "react-router-dom";
 
 
 import "./editor.css";
 import axios from "axios";
-import BlogNavbar from "../../components/blog_components/BlogNavigation";
 
-const Editor = ({ g_user, cf_user }) => {
+const Editor = ({ g_user, cf_user,setRenderBothBlogs, setBlogButtonText }) => {
   const [curhtml, setcurhtml] = useState(<></>); //useState imp if we want to see the hmtl result alongside
   const [title, setTitle] = useState("No Title Provided");
   const [isDisabled, setIsDisabled] = useState(false);
 
   const [inputText, setInputText] = useState("");
+
+  const { state } = useLocation();
+  console.log("display article", state);
+  const article = state;
+
 
   const { quill, quillRef, Quill } = useQuill({
     modules: { blotFormatter: {} },
@@ -74,6 +79,15 @@ const Editor = ({ g_user, cf_user }) => {
     }
   }, [quill, Quill]);
 
+  useEffect(()=>{
+    setRenderBothBlogs(true)
+     setBlogButtonText('My Blogs')
+    //  if(article&&quill)
+    //  {
+    //   console.log("SUCCESS")
+    //   quill.getContents().ops=article.ops_array;
+    //  }
+  },[])
   const handleInputChange = (e) => {
     setInputText(e.target.value);
   };
@@ -86,10 +100,6 @@ const Editor = ({ g_user, cf_user }) => {
   };
   return (
     <>
-    <div style={{ marginTop: "2rem" }}>
-          <BlogNavbar render_both_blog_buttons={true} blog_button_text = {"My Blogs"}/>
-        
-        </div>
       <div className="hstack gap-3" style={{ marginTop: "1rem" }}>
         <input
           className="form-control me-auto"
@@ -125,7 +135,7 @@ const Editor = ({ g_user, cf_user }) => {
             <h3 style={{ textAlign: "center" }}>Preview</h3>
           </div>
 
-          <div className="preview-article ql-editor">{curhtml}</div>
+          <div className="preview-article ql-editor ">{curhtml}</div>
         </div>
       </div>
     </>

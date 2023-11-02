@@ -1,4 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  Route,
+  RouterProvider,
+  createBrowserRouter,
+  createRoutesFromElements,
+  Outlet,
+} from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
 import Mainpage from "./pages/Mainpage";
@@ -7,9 +13,11 @@ import UnauthorizedAccess from "./components/UnauthorizedAccess";
 import UrlNotFound from "./components/UrlNotFound";
 import axios from "axios";
 import { RingLoader, BeatLoader } from "react-spinners";
-import AllBlogsPage from "./pages/BlogPages/AllBlogsPage"
-import EditorPage from "./pages/BlogPages/TextEditorPage";
-import MyBlogsPage from "./pages/BlogPages/MyBlogsPage";
+import AllBlogs from "./components/blog_components/AllBlogs";
+import Editor from "./components/blog_components/TextEditor";
+import MyBlogs from "./components/blog_components/MyBlogs";
+import BlogNavPage from "./pages/BlogPages/BlogNavigationPage";
+import DisplayArticle from "./components/blog_components/DisplayArticle";
 
 function App() {
   const [arr, setArr] = useState([]);
@@ -19,6 +27,9 @@ function App() {
   const [isAdmin, setAdmin] = useState(false);
   const [canShowRing, setCanShowRing] = useState(true);
   const [canShowBeat, setCanShowBeat] = useState(true);
+
+  const [renderBothBlogs, setRenderBothBlogs] = useState(false);
+  const [blogButtonText, setBlogButtonText] = useState("My Blogs");
 
   const url = process.env.REACT_APP_API_URL;
 
@@ -35,6 +46,7 @@ function App() {
         console.log(err);
       });
   };
+
   const getCFuser = async () => {
     try {
       const { data } = await axios.get(`${url}/is_linked`, {
@@ -84,107 +96,184 @@ function App() {
     // return () => clearTimeout(timer);
   }, [g_user]);
 
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route
+        path="/"
+        element={
+          <div
+          
+            style={{ height: "100vh", width: "100vw", boxSizing: "border-box" }}
+          >
+            <div style={{ height: "8%", margin: "0", padding: "0" }}>
+              <NavBar g_user={g_user} setGUser={setGUser} isAdmin={isAdmin} />
+            </div>
+            {/* <div  style={{ height: "92%", margin: "0", padding: "0" }}> */}
+              <Outlet />
+            {/* </div> */}
+          </div>
+        }
+        errorElement={
+          <div
+            style={{ height: "100vh", width: "100vw", boxSizing: "border-box" }}
+          >
+            <div
+              style={{ height: "8%", margin: "0", padding: "0" }}
+            >
+              <NavBar g_user={g_user} setGUser={setGUser} isAdmin={isAdmin} />
+            </div>
+            <div
+              style={{ height: "92%", margin: "0", padding: "0" }}
+            >
+              <UrlNotFound />
+            </div>
+          </div>
+        }
+      >
+        <Route
+          path=""
+          element={
+            canShowRing ? (
+              <RingLoader
+                color="#fb5607"
+                size={200}
+                cssOverride={{
+                  marginTop: "15%",
+                  marginLeft: "45%",
+                  marginRight: "auto",
+                }}
+              />
+            ) : (
+              <Mainpage
+                list={arr}
+                g_user={g_user}
+                setGUser={setGUser}
+                cf_user={cf_user}
+                setCFUser={setCFUser}
+                getArr={getArr}
+                setArr={setArr}
+                isAdmin={isAdmin}
+              />
+            )
+          }
+        />
+        <Route
+          path="admin"
+          element={
+            canShowBeat ? (
+              <BeatLoader
+                color="orange"
+                size={30}
+                cssOverride={{
+                  marginTop: "15%",
+                  marginLeft: "45%",
+                  marginRight: "auto",
+
+                  //borderColor: "red",
+                }}
+              />
+            ) : isAdmin ? (
+              <Adminpage
+                list={adArr}
+                setAdArr={setAdArr}
+                g_user={g_user}
+                isAdmin={isAdmin}
+                setAdmin={setAdmin}
+              />
+            ) : (
+              <UnauthorizedAccess />
+            )
+          }
+        />
+
+        <Route
+          path="blogs"
+          element={
+            <>
+              <div style={{ marginTop: "2rem" }}>
+                <BlogNavPage
+                  render_both_blog_buttons={renderBothBlogs}
+                  blog_button_text={blogButtonText}
+                />
+              </div>
+              
+              <Outlet />
+             
+            </>
+          }
+        >
+          <Route
+            path=""
+            element={
+              <AllBlogs
+                g_user={g_user}
+                cf_user={cf_user}
+                setRenderBothBlogs={setRenderBothBlogs}
+                setBlogButtonText={setBlogButtonText}
+              />
+            }
+          />
+          <Route
+            path="create-article"
+            element={
+              <div style={{margin:"1rem 4rem"}}>
+              <Editor
+                g_user={g_user}
+                cf_user={cf_user}
+                setRenderBothBlogs={setRenderBothBlogs}
+                setBlogButtonText={setBlogButtonText}
+              />
+              </div>
+            }
+          />
+          <Route
+            path="my-blogs"
+            element={
+              <>
+                <Outlet />
+              </>
+            }
+          >
+            <Route
+              path=""
+              element={
+                <MyBlogs
+                  g_user={g_user}
+                  cf_user={cf_user}
+                  setRenderBothBlogs={setRenderBothBlogs}
+                  setBlogButtonText={setBlogButtonText}
+                />
+              }
+            />
+            <Route
+              path=":article_id"
+              element={
+                <DisplayArticle
+                  setRenderBothBlogs={setRenderBothBlogs}
+                  setBlogButtonText={setBlogButtonText}
+                />
+              }
+            />
+          </Route>
+
+          <Route
+            path=":article_id"
+            element={
+              <DisplayArticle
+                setRenderBothBlogs={setRenderBothBlogs}
+                setBlogButtonText={setBlogButtonText}
+              />
+            }
+          />
+        </Route>
+      </Route>
+    )
+  );
+
   return (
-    <div
-      className="column"
-      style={{ height: "100vh", width: "100vw", boxSizing: "border-box" }}
-    >
-      <Router>
-        {/* any component should be inside this router tag only */}
-        <div
-          className="row"
-          style={{ height: "8.7%", margin: "0", padding: "0" }}
-        >
-          <NavBar g_user={g_user} setGUser={setGUser} isAdmin={isAdmin} />
-        </div>
-
-        <div
-          className="row"
-          style={{ height: "92%", margin: "0", padding: "0" }}
-        >
-          {/* it is not allowed to use anything other than route inside routes */}
-          <Routes>
-            {/* "*" will match any URL that doesn't match any of the other routes in your application,but not in descendant routes*/}
-            <Route path="*" element={<UrlNotFound />} />
-
-            <Route
-              path="/"
-              element={
-                canShowRing ? (
-                  <RingLoader
-                    color="#fb5607"
-                    size={200}
-                    cssOverride={{
-                      marginTop: "15%",
-                      marginLeft: "45%",
-                      marginRight: "auto",
-                    }}
-                  />
-                ) : (
-                  <Mainpage
-                    list={arr}
-                    g_user={g_user}
-                    setGUser={setGUser}
-                    cf_user={cf_user}
-                    setCFUser={setCFUser}
-                    getArr={getArr}
-                    setArr={setArr}
-                    isAdmin={isAdmin}
-                  />
-                )
-              }
-            />
-
-            <Route
-              path="/admin"
-              element={
-                canShowBeat ? (
-                  <BeatLoader
-                    color="orange"
-                    size={30}
-                    cssOverride={{
-                      marginTop: "15%",
-                      marginLeft: "45%",
-                      marginRight: "auto",
-
-                      //borderColor: "red",
-                    }}
-                  />
-                ) : isAdmin ? (
-                  <Adminpage
-                    list={adArr}
-                    setAdArr={setAdArr}
-                    g_user={g_user}
-                    isAdmin={isAdmin}
-                    setAdmin={setAdmin}
-                  />
-                ) : (
-                  <UnauthorizedAccess />
-                )
-              }
-            />
-
-            <Route
-              path="/blogs/*" // * is imp if we want to create more children routes
-              element={//could create a new component for that returned routes but no need
-                <Routes>
-                  {/* just like we handled non matching in the ancestor */}
-
-                  <Route path="*" element={<UrlNotFound />} />
-
-                  <Route path="/" element={<AllBlogsPage g_user={g_user} cf_user={cf_user}/>}></Route>
-                  <Route
-                    path="/create-article"
-                    element={<EditorPage g_user={g_user} cf_user={cf_user} />}
-                  />
-                  <Route path="/my-blogs" element={<MyBlogsPage g_user={g_user} cf_user={cf_user}/>}></Route>
-                </Routes>
-              }
-            ></Route>
-          </Routes>
-        </div>
-      </Router>
-    </div>
+    
+      <RouterProvider router={router} />
+    
   );
 }
 

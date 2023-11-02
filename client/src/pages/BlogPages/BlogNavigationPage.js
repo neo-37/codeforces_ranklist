@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 
 const BlogNavbar = ({ blog_button_text ,render_both_blog_buttons}) => {
+
   return (
+    <>
     <div
       className="container"
       style={{
@@ -33,6 +35,8 @@ const BlogNavbar = ({ blog_button_text ,render_both_blog_buttons}) => {
         </Link>     
       </div>
     </div>
+    
+    </>
   );
 };
 

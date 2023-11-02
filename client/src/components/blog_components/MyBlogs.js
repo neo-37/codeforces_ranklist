@@ -2,17 +2,18 @@ import BlogCard from "../../components/blog_components/BlogCard";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { BarLoader } from "react-spinners";
-import BlogNavbar from "../../components/blog_components/BlogNavigation";
+
 import Blogs from "../../components/blog_components/Blogs";
 
-const MyBlogs = ({ g_user }) => {
+
+const MyBlogs = ({ g_user, setRenderBothBlogs, setBlogButtonText }) => {
   const [myarticles, setmyarticles] = useState([]);
 
   const url = process.env.REACT_APP_API_URL;
 
   const retrieveArticleFromServer = () => {
     axios
-      .get(`${url}/retrieve_article`,{withCredentials:true})
+      .get(`${url}/retrieve_article`, { withCredentials: true })
       .then(({ data }) => {
         //in respose data holds array of article objects
         setmyarticles(data);
@@ -25,8 +26,11 @@ const MyBlogs = ({ g_user }) => {
 
   useEffect(() => {
     retrieveArticleFromServer();
+    setRenderBothBlogs(true);
+    setBlogButtonText("All Blogs");
   }, []);
-
+  // const { blog_component } = useParams();
+  // console.log(blog_component);
   return (
     <>
       {myarticles.length === 0 ? (
@@ -41,8 +45,9 @@ const MyBlogs = ({ g_user }) => {
         />
       ) : (
         <div style={{ marginTop: "2rem" }}>
-          <BlogNavbar blog_button_text={"All Blogs"} render_both_blog_buttons={true}/>
-          <Blogs articles={myarticles}/>
+         
+          <Blogs articles={myarticles} g_user={g_user} />
+        
         </div>
       )}
     </>
