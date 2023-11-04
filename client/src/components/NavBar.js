@@ -152,13 +152,20 @@ function NavBar(props) {
                 {/* empty fragment is need here are conditional rendering is expecting a component or similar but we are again giving condition */}
                 {props.g_user ? (
                   <>
-                    {/* changed props */}
                     {props.isAdmin ? (
+                      <>
                       <li className="nav-item" data-bs-dismiss="offcanvas">
                         <Link to="/admin" className="nav-link">
-                          Admin page
+                          Admin Page
                         </Link>
                       </li>
+                      <li className="nav-item" data-bs-dismiss="offcanvas">
+                        <Link to="/admin/review_blogs" className="nav-link">
+                          Review Blogs
+                        </Link>
+                      </li>
+                      </>
+
                     ) : (
                       <></>
                     )}

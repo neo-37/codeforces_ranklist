@@ -515,6 +515,7 @@ app.post("/save_article", (req, res) => {
       title: req.body.title,
       ops_array: req.body.ops_array,
       article_html: req.body.html_string,
+      review_status: req.body.review_status
     },
     { upsert: true } //act as insert if no match is found
   )

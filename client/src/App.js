@@ -18,6 +18,7 @@ import Editor from "./components/blog_components/TextEditor";
 import MyBlogs from "./components/blog_components/MyBlogs";
 import BlogNavPage from "./pages/BlogPages/BlogNavigationPage";
 import DisplayArticle from "./components/blog_components/DisplayArticle";
+import ReviewBlogs from "./components/blog_components/ReviewBlogs";
 
 function App() {
   const [arr, setArr] = useState([]);
@@ -96,20 +97,32 @@ function App() {
     // return () => clearTimeout(timer);
   }, [g_user]);
 
+  function set_color(rating) {
+    if (rating < 1200) return "gray";
+    else if (rating < 1400) return "#008000";
+    else if (rating < 1600) return "#03a89e";
+    else if (rating < 1900) return "blue";
+    else if (rating < 2100) return "#a0a";
+    else if (rating < 2300) return "#ff8c00";
+    else if (rating < 2400) return "#ff8c00";
+    else if (rating < 2600) return "#ff0000";
+    else if (rating < 3000) return "#ff0000";
+    else return "#ff0000"; //case for tourist
+  }
+
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route
         path="/"
         element={
           <div
-          
             style={{ height: "100vh", width: "100vw", boxSizing: "border-box" }}
           >
             <div style={{ height: "8%", margin: "0", padding: "0" }}>
               <NavBar g_user={g_user} setGUser={setGUser} isAdmin={isAdmin} />
             </div>
             {/* <div  style={{ height: "92%", margin: "0", padding: "0" }}> */}
-              <Outlet />
+            <Outlet />
             {/* </div> */}
           </div>
         }
@@ -117,14 +130,10 @@ function App() {
           <div
             style={{ height: "100vh", width: "100vw", boxSizing: "border-box" }}
           >
-            <div
-              style={{ height: "8%", margin: "0", padding: "0" }}
-            >
+            <div style={{ height: "8%", margin: "0", padding: "0" }}>
               <NavBar g_user={g_user} setGUser={setGUser} isAdmin={isAdmin} />
             </div>
-            <div
-              style={{ height: "92%", margin: "0", padding: "0" }}
-            >
+            <div style={{ height: "92%", margin: "0", padding: "0" }}>
               <UrlNotFound />
             </div>
           </div>
@@ -173,6 +182,15 @@ function App() {
                 }}
               />
             ) : isAdmin ? (
+              <Outlet />
+            ) : (
+              <UnauthorizedAccess />
+            )
+          }
+        >
+          <Route
+            path=""
+            element={
               <Adminpage
                 list={adArr}
                 setAdArr={setAdArr}
@@ -180,11 +198,33 @@ function App() {
                 isAdmin={isAdmin}
                 setAdmin={setAdmin}
               />
-            ) : (
-              <UnauthorizedAccess />
-            )
-          }
-        />
+            }
+          />
+          <Route path="review_blogs" element={<Outlet/>}>
+
+            <Route
+              path=""
+              element={
+                <ReviewBlogs
+                  g_user={g_user}
+                  cf_user={cf_user}
+                  isAdmin={isAdmin}
+                  setAuthorColor={set_color}
+                />
+              }
+/>
+              <Route 
+              path=":review_article_id"
+              element={<DisplayArticle
+                  setRenderBothBlogs={setRenderBothBlogs}
+                  setBlogButtonText={setBlogButtonText}
+                  set_author_color={set_color}
+                  isAdmin={isAdmin}
+                />}
+              />
+            
+          </Route>
+        </Route>
 
         <Route
           path="blogs"
@@ -196,9 +236,8 @@ function App() {
                   blog_button_text={blogButtonText}
                 />
               </div>
-              
+
               <Outlet />
-             
             </>
           }
         >
@@ -210,19 +249,20 @@ function App() {
                 cf_user={cf_user}
                 setRenderBothBlogs={setRenderBothBlogs}
                 setBlogButtonText={setBlogButtonText}
+                set_author_color={set_color}
               />
             }
           />
           <Route
             path="create-article"
             element={
-              <div style={{margin:"1rem 4rem"}}>
-              <Editor
-                g_user={g_user}
-                cf_user={cf_user}
-                setRenderBothBlogs={setRenderBothBlogs}
-                setBlogButtonText={setBlogButtonText}
-              />
+              <div style={{ margin: "1rem 4rem" }}>
+                <Editor
+                  g_user={g_user}
+                  cf_user={cf_user}
+                  setRenderBothBlogs={setRenderBothBlogs}
+                  setBlogButtonText={setBlogButtonText}
+                />
               </div>
             }
           />
@@ -242,6 +282,7 @@ function App() {
                   cf_user={cf_user}
                   setRenderBothBlogs={setRenderBothBlogs}
                   setBlogButtonText={setBlogButtonText}
+                  set_author_color={set_color}
                 />
               }
             />
@@ -251,6 +292,7 @@ function App() {
                 <DisplayArticle
                   setRenderBothBlogs={setRenderBothBlogs}
                   setBlogButtonText={setBlogButtonText}
+                  set_author_color={set_color}
                 />
               }
             />
@@ -262,6 +304,7 @@ function App() {
               <DisplayArticle
                 setRenderBothBlogs={setRenderBothBlogs}
                 setBlogButtonText={setBlogButtonText}
+                set_author_color={set_color}
               />
             }
           />
@@ -270,11 +313,7 @@ function App() {
     )
   );
 
-  return (
-    
-      <RouterProvider router={router} />
-    
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;

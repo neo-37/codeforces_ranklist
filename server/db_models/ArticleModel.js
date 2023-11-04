@@ -29,6 +29,11 @@ const articleSchema = new mongoose.Schema({
     type: String,
     default: "<p><br/></p>",
     required:true
+  },
+  review_status:{
+    type:Number,
+    default: 0,//0 means not under review, 1 means under review,2 means published,-1 means rejected
+    required:true
   }
 });
 

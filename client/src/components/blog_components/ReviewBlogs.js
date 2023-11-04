@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+
 import axios from "axios";
+import { useState, useEffect } from "react";
 import { BarLoader } from "react-spinners";
-import { Link ,useParams} from "react-router-dom";
-import Blogs from "./Blogs";
 
-function BlogPage({ g_user, cf_user ,setRenderBothBlogs, setBlogButtonText,setAuthorColor,isAdmin}) {
-  const [articles, setarticles] = useState([]);
+import Blogs from "../../components/blog_components/Blogs";
 
+
+const ReviewBlogs = ({ g_user ,isAdmin}) => {
+  const [reviewArticles, setreviewArticles] = useState(null);
 
   const url = process.env.REACT_APP_API_URL;
 
@@ -15,7 +16,8 @@ function BlogPage({ g_user, cf_user ,setRenderBothBlogs, setBlogButtonText,setAu
       .get(`${url}/retrieve_article`)
       .then(({ data }) => {
         //in respose data holds array of article objects
-        setarticles(data);
+        const under_review_articles=data.filter((article)=> (article.review_status>0))
+        setreviewArticles(under_review_articles);
         console.log("retrieve article", data);
       })
       .catch((err) => {
@@ -25,14 +27,11 @@ function BlogPage({ g_user, cf_user ,setRenderBothBlogs, setBlogButtonText,setAu
 
   useEffect(() => {
     retrieveArticleFromServer();
-    setRenderBothBlogs(false);
-    setBlogButtonText("My Blogs");
   }, []);
-const {trial}=useParams()
-console.log(trial)
+
   return (
     <>
-      {articles.length === 0 ? (
+      {reviewArticles==null ? (
         <BarLoader
           color="#fb5607"
           size={800}
@@ -43,12 +42,14 @@ console.log(trial)
           }}
         />
       ) : (
-        <div style={{ marginTop: "2rem" ,paddingBottom:"2rem"}}>
-         <Blogs articles={articles} isAdmin={isAdmin}/>
+        <div style={{ marginTop: "2rem" }}>
+         
+          <Blogs articles={reviewArticles} g_user={g_user} isAdmin={isAdmin}/>
+        
         </div>
       )}
     </>
   );
-}
+};
 
-export default BlogPage;
+export default ReviewBlogs;

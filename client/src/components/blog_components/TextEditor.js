@@ -6,11 +6,10 @@ import htmlParser from "html-react-parser";
 import "quill/dist/quill.snow.css";
 import { useLocation } from "react-router-dom";
 
-
 import "./editor.css";
 import axios from "axios";
 
-const Editor = ({ g_user, cf_user,setRenderBothBlogs, setBlogButtonText }) => {
+const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
   const [curhtml, setcurhtml] = useState(<></>); //useState imp if we want to see the hmtl result alongside
   const [title, setTitle] = useState("No Title Provided");
   const [isDisabled, setIsDisabled] = useState(false);
@@ -20,7 +19,6 @@ const Editor = ({ g_user, cf_user,setRenderBothBlogs, setBlogButtonText }) => {
   const { state } = useLocation();
   console.log("display article", state);
   const article = state;
-
 
   const { quill, quillRef, Quill } = useQuill({
     modules: { blotFormatter: {} },
@@ -56,6 +54,7 @@ const Editor = ({ g_user, cf_user,setRenderBothBlogs, setBlogButtonText }) => {
       title: `${title}`,
       ops_array: article_data_array,
       html_string: htmlString,
+      review_status:0
     });
   };
 
@@ -79,23 +78,25 @@ const Editor = ({ g_user, cf_user,setRenderBothBlogs, setBlogButtonText }) => {
     }
   }, [quill, Quill]);
 
-  useEffect(()=>{
-    setRenderBothBlogs(true)
-     setBlogButtonText('My Blogs')
-    //  if(article&&quill)
-    //  {
-    //   console.log("SUCCESS")
-    //   quill.getContents().ops=article.ops_array;
-    //  }
-  },[])
+  useEffect(() => {
+    setRenderBothBlogs(true);
+    setBlogButtonText("My Blogs");
+    if (article) {
+      console.log("SUCCESS");
+      // quill.setContents(article.ops_array);
+       setInputText(article.title)
+       setTitle(article.title)
+       setIsDisabled(true)
+    }
+  }, []);
   const handleInputChange = (e) => {
     setInputText(e.target.value);
   };
   const handleTitleSubmit = () => {
     // Access the input text value from the state and do something with it
     if (inputText !== "") {
-    setTitle(inputText);
-    setIsDisabled(true);
+      setTitle(inputText);
+      setIsDisabled(true);
     }
   };
   return (
@@ -117,7 +118,6 @@ const Editor = ({ g_user, cf_user,setRenderBothBlogs, setBlogButtonText }) => {
         >
           Lock
         </button>
-
       </div>
       <div className="text-editor">
         <div>
