@@ -15,8 +15,11 @@ function BlogPage({ g_user, cf_user ,setRenderBothBlogs, setBlogButtonText,setAu
       .get(`${url}/retrieve_article`)
       .then(({ data }) => {
         //in respose data holds array of article objects
-        setarticles(data);
-        console.log("retrieve article", data);
+        const published_articles = data.filter(
+          (article) => article.review_status === 2
+        );
+        setarticles(published_articles);
+        console.log("published article", published_articles);
       })
       .catch((err) => {
         console.log("receive article to server", err);

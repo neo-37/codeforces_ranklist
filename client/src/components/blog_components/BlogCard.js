@@ -7,12 +7,14 @@ const BlogCard = ({ article, g_user, isAdmin }) => {
 
   const navigate = useNavigate();
   let child_route = article.unique_key;
+
+  //gotta endcode the route else for characters like ? in the end it won't be accessible in params in the target component
   const handleReadClick = () => {
     
-    navigate(child_route.replace(/ /g, "-"), { state: article });
+    navigate(encodeURIComponent(child_route.replace(/ /g, "-")), { state: article });
   };
   const handleReviewClick = () => {
-    navigate(child_route.replace(/ /g, "-"), { state: article });
+    navigate(encodeURIComponent(child_route.replace(/ /g, "-")), { state: article });
   };
   const handleEditClick = () => {
     navigate("../create-article", { state: article });
@@ -48,7 +50,7 @@ const BlogCard = ({ article, g_user, isAdmin }) => {
     sendArticleToServer(updatedArticle);
   };
 
-  console.log("blog card", g_user, "article", article, isAdmin);
+  console.log("blog card", g_user, "article", isAdmin);
   return (
     <div className="card col" style={{ maxWidth: "20rem", minWidth: "18rem" }}>
       <img
@@ -64,10 +66,10 @@ const BlogCard = ({ article, g_user, isAdmin }) => {
 
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <button
-            className="btn btn-success"
-            onClick={isAdmin ? handleReadClick : handleReviewClick}
+            className={isAdmin&&article.review_status===1?"btn btn-warning":"btn btn-success"}
+            onClick={isAdmin ? handleReviewClick:handleReadClick}
           >
-            {isAdmin ? "Review" : "Read"}
+            {isAdmin ? (article.review_status===1?"Review":"Published") : "Read"}
           </button>
           {!isAdmin && g_user && g_user.email === article.email ? (
             <div className="btn-group" >

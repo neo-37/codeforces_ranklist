@@ -533,10 +533,12 @@ app.post("/save_article", (req, res) => {
 app.get("/retrieve_article", (req, res) => {
   match = {};
   if (req.user) match = { email: req.user._json.email };
-
+  console.log('query',req.query.key)
+if(req.query.key) match={unique_key:req.query.key};
+console.log('match',match)
   ArticlesData.find(match)
     .then((result) => {
-      console.log("article retrieved", result);
+      // console.log("article retrieved", result);
       res.send(result);
       // res.end();
     })
