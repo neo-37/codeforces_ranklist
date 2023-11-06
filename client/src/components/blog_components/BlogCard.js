@@ -20,7 +20,19 @@ const BlogCard = ({ article, g_user, isAdmin }) => {
     navigate("../create-article", { state: article });
   };
 
+ 
+
+
   const url = process.env.REACT_APP_API_URL;
+
+  const handleDeleteClick = () => {
+    axios.post(`${url}/delete_article`,{unique_key:article.unique_key}).then((response) => {
+      console.log("article deleted", response);
+    })
+    .catch((err) => {
+      console.log("delete article from server", err);
+    });
+  }
   const sendArticleToServer = async (article_data) => {
     axios
       .post(`${url}/save_article`, article_data)
@@ -66,12 +78,12 @@ const BlogCard = ({ article, g_user, isAdmin }) => {
 
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <button
-            className={article.review_status===1?"btn btn-warning":(article.review_status===2?"btn btn-success":(article.review_status===-1?"btn btn-danger":"btn btn-primary"))}
+            className={localArticle.review_status===1?"btn btn-warning":(localArticle.review_status===2?"btn btn-success":(localArticle.review_status===-1?"btn btn-danger":"btn btn-primary"))}
             onClick={isAdmin ? handleReviewClick:handleReadClick}
           >
-            {isAdmin ? (article.review_status===1?"Review":"Published") : "Read"}
+            {isAdmin ? (localArticle.review_status===1?"Review":"Published") : "Read"}
           </button>
-          {!isAdmin && g_user && g_user.email === article.email ? (
+          {!isAdmin && g_user && g_user.email === localArticle.email ? (
             <div className="btn-group" >
               <button
                 type="button"
@@ -87,7 +99,15 @@ const BlogCard = ({ article, g_user, isAdmin }) => {
                     {localArticle.review_status===-1?"Edit To Publish":"Edit"}
                   </button>
                 </li>
-                {article.review_status>=0?
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                <li >
+                  <button className="dropdown-item" style={{color:"#DEE2E6"}} onClick={handleDeleteClick}>
+                    Delete Article
+                  </button>
+                </li>
+                {localArticle.review_status>=0?
                 <>
                 <li>
                   <hr className="dropdown-divider" />

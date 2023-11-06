@@ -501,6 +501,31 @@ app.get("/delete_announcement", async (req, res) => {
   res.status(200).json({ message: "Image deleted successfully!" });
 });
 
+app.post("/edit_article_title", (req, res) => {
+  const key_title = req.body.new_title.trim().toLowerCase();
+  const key = req.body.email + key_title;
+  ArticlesData.updateOne({unique_key:req.body.unique_key}, { $set: {unique_key:key} })
+  .then((result) => {
+    console.log("title edited", result);
+  })
+  .catch((err) => {
+    console.error("edit_article_title post", err);
+  });
+
+  res.end();
+});
+
+app.post("/delete_article", (req, res) => {
+  ArticlesData.deleteOne({unique_key:req.body.unique_key})
+  .then((result) => {
+    console.log("deleted article", result);
+  })
+  .catch((err) => {
+    console.error("delete_article post", err);
+  });
+
+  res.end();
+});
 app.post("/save_article", (req, res) => {
   console.log("save article", req.body);
 
@@ -515,7 +540,7 @@ app.post("/save_article", (req, res) => {
       title: req.body.title,
       ops_array: req.body.ops_array,
       article_html: req.body.html_string,
-      review_status: req.body.review_status
+      review_status: req.body.review_status,
     },
     { upsert: true } //act as insert if no match is found
   )
@@ -533,12 +558,13 @@ app.post("/save_article", (req, res) => {
 app.get("/retrieve_article", (req, res) => {
   match = {};
   if (req.user) match = { email: req.user._json.email };
-  console.log('query',req.query.key)
-if(req.query.key) match={unique_key:req.query.key};
-console.log('match',match)
+  console.log("query", req.query.key);
+  if (req.query.key) match = { unique_key: req.query.key };
+  console.log("match", match);
   ArticlesData.find(match)
     .then((result) => {
       // console.log("article retrieved", result);
+     
       res.send(result);
       // res.end();
     })

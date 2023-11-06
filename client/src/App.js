@@ -229,16 +229,20 @@ function App() {
         <Route
           path="blogs"
           element={
+           
             <>
+             {g_user?
               <div style={{ marginTop: "2rem" }}>
                 <BlogNavPage
                   render_both_blog_buttons={renderBothBlogs}
                   blog_button_text={blogButtonText}
+                  
                 />
-              </div>
+              </div>:<></>}
 
               <Outlet />
             </>
+            
           }
         >
           <Route

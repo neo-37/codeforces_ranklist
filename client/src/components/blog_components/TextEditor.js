@@ -13,24 +13,57 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
   const [curhtml, setcurhtml] = useState(<></>); //useState imp if we want to see the hmtl result alongside
   const [title, setTitle] = useState("No Title Provided");
   const [isDisabled, setIsDisabled] = useState(false);
+  const [hideLockButton,setHideLockButton]=useState(false);
 
   const [inputText, setInputText] = useState("");
 
   const { state } = useLocation();
-  console.log("display article", state);
-  const article = state;
+  console.log("text editor state", state); //null is no data
 
   const { quill, quillRef, Quill } = useQuill({
     modules: { blotFormatter: {} },
   });
 
   if (Quill && !quill) {
-    // const BlotFormatter = require('quill-blot-formatter');//no need
     Quill.register("modules/blotFormatter", BlotFormatter);
   }
 
   const url = process.env.REACT_APP_API_URL;
 
+  const [retrievedArticle,setRetrievedArticle] = useState(null);
+
+  const editorIsEmpty =
+    quill &&
+    quill.getContents().ops.length === 1 &&
+    quill.getContents().ops[0].insert === "\n";
+
+    if (editorIsEmpty&&state) {
+      console.log('empty');
+      quill.setContents(state.ops_array);
+  
+      setInputText(state.title);
+      setTitle(state.title);
+      setIsDisabled(true);
+    }
+  
+
+  const retrieveArticleFromServer = async () => {
+    if (state) {
+      axios
+        .get(`${url}/retrieve_article`, { params: { key: (state.email.concat(title.trim().toLowerCase())) } })
+        .then(({ data }) => {
+          //in respose data holds array of article objects
+          console.log('text editor',data)
+          if (data.length)
+            setRetrievedArticle(data[0]);
+        })
+        .catch((err) => {
+          console.log("receive article to server", err);
+        });
+    }
+  };
+
+  
   const sendArticleToServer = async (article_data) => {
     axios
       .post(`${url}/save_article`, article_data)
@@ -41,7 +74,23 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
         console.log("send article to server", err);
       });
   };
-  const handleSaveArticleClick = () => {
+
+  const save_new_title = async () => {
+    axios
+      .post(`${url}/edit_article_title`, {
+        email: state.email,
+        unique_key: state.unique_key,
+        new_title: title,
+      })
+      .then((response) => {
+        console.log("title edit", response);
+      })
+      .catch((err) => {
+        console.log("title edit error", err);
+      });
+  };
+
+  const sendArticleHelp = () => {
     let currrentContents = quill.getContents();
     const article_data_array = currrentContents.ops;
     console.log("article data", article_data_array);
@@ -54,41 +103,52 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
       title: `${title}`,
       ops_array: article_data_array,
       html_string: htmlString,
-      review_status:0
+      review_status: 0,
+    });
+  };
+  const handleSaveArticleClick = async () => {
+    if (isDisabled) {
+      await retrieveArticleFromServer();
+      if (retrievedArticle) {
+        sendArticleHelp();
+      } else {
+        await save_new_title();
+        sendArticleHelp();
+        setHideLockButton(true);
+      }
+    }
+  };
+
+  //not needed
+  // useEffect(() => {
+  //   if (quill) {
+  //     quill.on("text-change", (delta, oldContents) => {
+  //       console.log(delta);
+
+  //       let currrentContents = quill.getContents();
+  //       console.log("cur contents", currrentContents);
+  //       // console.log(currrentContents.diff(oldContents));
+  //       // console.log('currect content',currrentContents.ops)
+  //       // console.log('currect content',currrentContents.ops[0].insert)
+
+  //       // const article_data_array = currrentContents.ops;
+  //       // console.log('article data',article_data_array)
+  //       // const converter = new QuillDeltaToHtmlConverter(article_data_array, {});
+  //       // const htmlString = converter.convert();
+  //       // setcurhtml(htmlParser(htmlString)); //parsing should be done here itself and not in return
+  //     });
+  //   }
+  // }, [quill, Quill]);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      // behavior: 'smooth', // Optionally, use smooth scrolling for a nice effect
     });
   };
 
-  useEffect(() => {
-    if (quill) {
-      quill.on("text-change", (delta, oldContents) => {
-        console.log(delta);
 
-        let currrentContents = quill.getContents();
-        console.log("cur contents", currrentContents);
-        // console.log(currrentContents.diff(oldContents));
-        // console.log('currect content',currrentContents.ops)
-        // console.log('currect content',currrentContents.ops[0].insert)
-
-        // const article_data_array = currrentContents.ops;
-        // console.log('article data',article_data_array)
-        // const converter = new QuillDeltaToHtmlConverter(article_data_array, {});
-        // const htmlString = converter.convert();
-        // setcurhtml(htmlParser(htmlString)); //parsing should be done here itself and not in return
-      });
-    }
-  }, [quill, Quill]);
-
-  useEffect(() => {
-    setRenderBothBlogs(true);
-    setBlogButtonText("My Blogs");
-    if (article) {
-      console.log("SUCCESS");
-      // quill.setContents(article.ops_array);
-       setInputText(article.title)
-       setTitle(article.title)
-       setIsDisabled(true)
-    }
-  }, []);
+  
   const handleInputChange = (e) => {
     setInputText(e.target.value);
   };
@@ -99,6 +159,20 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
       setIsDisabled(true);
     }
   };
+
+  const unlockTitle = () => {
+    setIsDisabled(false);
+  };
+
+  useEffect(() => {
+    setRenderBothBlogs(true);
+    setBlogButtonText("My Blogs");
+
+    scrollToTop();
+   
+  }, []);
+
+  
   return (
     <>
       <div className="hstack gap-3" style={{ marginTop: "1rem" }}>
@@ -111,13 +185,15 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
           aria-label="=Title of article"
           disabled={isDisabled}
         />
+        {!hideLockButton?
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={handleTitleSubmit}
+          onClick={isDisabled ? unlockTitle : handleTitleSubmit}
         >
-          Lock
+          {isDisabled ? "Unlock" : "Lock"}
         </button>
+        :<></>}
       </div>
       <div className="text-editor">
         <div>
