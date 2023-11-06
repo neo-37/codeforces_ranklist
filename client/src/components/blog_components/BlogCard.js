@@ -66,7 +66,7 @@ const BlogCard = ({ article, g_user, isAdmin }) => {
 
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <button
-            className={isAdmin&&article.review_status===1?"btn btn-warning":"btn btn-success"}
+            className={article.review_status===1?"btn btn-warning":(article.review_status===2?"btn btn-success":(article.review_status===-1?"btn btn-danger":"btn btn-primary"))}
             onClick={isAdmin ? handleReviewClick:handleReadClick}
           >
             {isAdmin ? (article.review_status===1?"Review":"Published") : "Read"}

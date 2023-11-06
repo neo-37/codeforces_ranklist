@@ -35,9 +35,11 @@ const ReviewBlogs = ({ g_user, isAdmin }) => {
       {reviewArticles == null ? (
         <></>
       ) : reviewArticles.length === 0 ? (
-        <>
+        
+        <div style={{display:"flex",justifyContent:"center", marginTop: "2rem" }}>
           <h1>No articles to review </h1>
-        </>
+          </div>
+        
       ) : (
         <div style={{ marginTop: "2rem" }}>
           <Blogs articles={reviewArticles} g_user={g_user} isAdmin={isAdmin} />

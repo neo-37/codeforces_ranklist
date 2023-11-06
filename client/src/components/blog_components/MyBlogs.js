@@ -5,9 +5,8 @@ import { BarLoader } from "react-spinners";
 
 import Blogs from "../../components/blog_components/Blogs";
 
-
 const MyBlogs = ({ g_user, setRenderBothBlogs, setBlogButtonText }) => {
-  const [myarticles, setmyarticles] = useState([]);
+  const [myarticles, setmyarticles] = useState(null);
 
   const url = process.env.REACT_APP_API_URL;
 
@@ -33,7 +32,7 @@ const MyBlogs = ({ g_user, setRenderBothBlogs, setBlogButtonText }) => {
   // console.log(blog_component);
   return (
     <>
-      {myarticles.length === 0 ? (
+      {myarticles==null ? (
         <BarLoader
           color="#fb5607"
           size={800}
@@ -43,11 +42,14 @@ const MyBlogs = ({ g_user, setRenderBothBlogs, setBlogButtonText }) => {
             marginRight: "auto",
           }}
         />
+        
+      ) : myarticles.length === 0 ? (
+        <div style={{display:"flex",justifyContent:"center", marginTop: "2rem" }}>
+        <h1>No articles present</h1>
+        </div>
       ) : (
         <div style={{ marginTop: "2rem" }}>
-         
           <Blogs articles={myarticles} g_user={g_user} />
-        
         </div>
       )}
     </>

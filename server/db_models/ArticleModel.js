@@ -14,6 +14,8 @@ const articleSchema = new mongoose.Schema({
   author:
   {
     type:String,
+    default:"tourist",
+    require:true
   },
   title:{
     type:String,
