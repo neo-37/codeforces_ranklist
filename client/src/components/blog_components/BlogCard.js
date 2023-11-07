@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useEffect ,useState} from "react";
+import { useState} from "react";
 
-const BlogCard = ({ article, g_user, isAdmin }) => {
+const BlogCard = ({ article, g_user, isAdmin,handleDeleteClick }) => {
   const [localArticle, setLocalArticle] = useState(article); // Use local state
 
   const navigate = useNavigate();
@@ -25,14 +25,7 @@ const BlogCard = ({ article, g_user, isAdmin }) => {
 
   const url = process.env.REACT_APP_API_URL;
 
-  const handleDeleteClick = () => {
-    axios.post(`${url}/delete_article`,{unique_key:article.unique_key}).then((response) => {
-      console.log("article deleted", response);
-    })
-    .catch((err) => {
-      console.log("delete article from server", err);
-    });
-  }
+  
   const sendArticleToServer = async (article_data) => {
     axios
       .post(`${url}/save_article`, article_data)
@@ -103,7 +96,7 @@ const BlogCard = ({ article, g_user, isAdmin }) => {
                   <hr className="dropdown-divider" />
                 </li>
                 <li >
-                  <button className="dropdown-item" style={{color:"#DEE2E6"}} onClick={handleDeleteClick}>
+                  <button className="dropdown-item" style={{color:"#DEE2E6"}} onClick={()=>{handleDeleteClick(article)}}>
                     Delete Article
                   </button>
                 </li>

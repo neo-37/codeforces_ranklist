@@ -3,20 +3,18 @@ import { useLocation, Link, useNavigate, useParams } from "react-router-dom";
 import htmlParser from "html-react-parser";
 import axios from "axios";
 import { BeatLoader } from "react-spinners";
+import CfHandleColor from "../multipurpose_components/CfHandleColor";
 
 function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
   const [curHmtl, setCurHtml] = useState(<></>);
   const [article, setarticle] = useState(null);
 
-  //#IMP:not good approach as this will lead to error if we directly go to url,since state if passed only on clicking read
-  // const { state } = useLocation();
-
   const navigate = useNavigate();
   let { review_article_id ,article_id} = useParams();
   const db_valid_article_id=(article_id?article_id:review_article_id).replace(/-/g, ' ');
-  // review_article_id.replace(/ /g, ' ');
+  
   console.log("display article", article_id,review_article_id);
-  // const article = state;
+
 
   const url = process.env.REACT_APP_API_URL;
 
@@ -56,11 +54,26 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
     sendArticleToServer(article);
   };
 
+  const [cfcolor,setCfcolor]=useState(null);
+
+  const get_cf_handle_details=async ()=>{
+  await axios
+     .get(`${url}/cf_handle_details`,{params:{cf_handle:article.author}})
+     .then(({data}) => {
+      
+setCfcolor({cf_handle:data.handle,rating:data.rating,display_article:true});
+
+     })
+     .catch((err) => {
+       console.log("get cf handle details DisplayArticle", err);
+     });
+  }
 
   useEffect(()=>{
     if (article) {
       if (isAdmin && article.review_status <= 0) navigate("..");
       else setCurHtml(htmlParser(article.article_html));
+      get_cf_handle_details();
     }
   },[article])
   
@@ -78,6 +91,7 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
     console.log("review article id", db_valid_article_id,article);
     
   }, []);
+
   return (
     <>
       {!article ? (
@@ -103,7 +117,7 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
             }}
           >
             <h3 className="pb-4 mb-4 fst-italic border-bottom">
-              By {article.author}
+              By {cfcolor?<CfHandleColor value={cfcolor}/>: article.author}
             </h3>
 
             <article className="blog-post">{curHmtl}</article>

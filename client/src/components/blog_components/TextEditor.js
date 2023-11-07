@@ -33,11 +33,11 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
   const [retrievedArticle,setRetrievedArticle] = useState(null);
 
   const editorIsEmpty =
-    quill &&
+    state&&quill &&
     quill.getContents().ops.length === 1 &&
     quill.getContents().ops[0].insert === "\n";
 
-    if (editorIsEmpty&&state) {
+    if (editorIsEmpty) {
       console.log('empty');
       quill.setContents(state.ops_array);
   
@@ -109,7 +109,7 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
   const handleSaveArticleClick = async () => {
     if (isDisabled) {
       await retrieveArticleFromServer();
-      if (retrievedArticle) {
+      if (!retrievedArticle) {
         sendArticleHelp();
       } else {
         await save_new_title();

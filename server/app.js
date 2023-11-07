@@ -150,7 +150,7 @@ function add_user(user, guser) {
     });
 }
 
-//updating every 5mins
+//updating every 10mins
 function update_list() {
   UsersData.find()
     .then((users) => {
@@ -308,6 +308,8 @@ function check_and_add(handle, guser, cb) {
   if (!handle.includes(";")) {
     console.log("Do not contain semicolon");
     let url = CF_API + handle;
+
+    //very imp to return the response.json(), as it is a promise that will be used in then
     fetch(url)
       .then((response) => {
         if (response.ok) {
@@ -572,6 +574,31 @@ app.get("/retrieve_article", (req, res) => {
       console.error("retrieve_article pt", err);
     });
 });
+
+app.get("/cf_handle_details",(req,res)=>{
+
+ const handle=req.query.cf_handle;
+
+    let url = CF_API + handle;
+
+    fetch(url)
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw("wrong with cf api")
+      })
+      .then((response)=>{
+        console.log(response.result)
+res.send(response.result[0]);
+      })
+
+      .catch((err)=>{
+        console.error("cf_handle_details","something wrong with cf api",err)
+        res.end()
+      })
+
+})
 
 // Catch-all route (should be defined after all specific routes)
 app.get("*", (req, res) => {
