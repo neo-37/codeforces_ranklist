@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
-import Mainpage from "./pages/Mainpage";
+import Mainpage from "./pages/MainPage";
 import Adminpage from "./pages/AdminPage";
 import UnauthorizedAccess from "./components/UnauthorizedAccess";
 import UrlNotFound from "./components/UrlNotFound";
@@ -16,7 +16,7 @@ import { RingLoader, BeatLoader } from "react-spinners";
 import AllBlogs from "./components/blog_components/AllBlogs";
 import Editor from "./components/blog_components/TextEditor";
 import MyBlogs from "./components/blog_components/MyBlogs";
-import BlogNavPage from "./pages/BlogPages/BlogNavigationPage";
+import BlogNavPage from "./pages/BlogNavigationPage";
 import DisplayArticle from "./components/blog_components/DisplayArticle";
 import ReviewBlogs from "./components/blog_components/ReviewBlogs";
 
@@ -97,18 +97,6 @@ function App() {
     // return () => clearTimeout(timer);
   }, [g_user]);
 
-  function set_color(rating) {
-    if (rating < 1200) return "gray";
-    else if (rating < 1400) return "#008000";
-    else if (rating < 1600) return "#03a89e";
-    else if (rating < 1900) return "blue";
-    else if (rating < 2100) return "#a0a";
-    else if (rating < 2300) return "#ff8c00";
-    else if (rating < 2400) return "#ff8c00";
-    else if (rating < 2600) return "#ff0000";
-    else if (rating < 3000) return "#ff0000";
-    else return "#ff0000"; //case for tourist
-  }
 
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -162,6 +150,7 @@ function App() {
                 getArr={getArr}
                 setArr={setArr}
                 isAdmin={isAdmin}
+               
               />
             )
           }
@@ -209,7 +198,7 @@ function App() {
                   g_user={g_user}
                   cf_user={cf_user}
                   isAdmin={isAdmin}
-                  setAuthorColor={set_color}
+                  
                 />
               }
 />
@@ -218,7 +207,7 @@ function App() {
               element={<DisplayArticle
                   setRenderBothBlogs={setRenderBothBlogs}
                   setBlogButtonText={setBlogButtonText}
-                  set_author_color={set_color}
+             
                   isAdmin={isAdmin}
                 />}
               />
@@ -253,7 +242,7 @@ function App() {
                 cf_user={cf_user}
                 setRenderBothBlogs={setRenderBothBlogs}
                 setBlogButtonText={setBlogButtonText}
-                set_author_color={set_color}
+      
               />
             }
           />
@@ -286,7 +275,7 @@ function App() {
                   cf_user={cf_user}
                   setRenderBothBlogs={setRenderBothBlogs}
                   setBlogButtonText={setBlogButtonText}
-                  set_author_color={set_color}
+                  
                 />
               }
             />
@@ -296,7 +285,7 @@ function App() {
                 <DisplayArticle
                   setRenderBothBlogs={setRenderBothBlogs}
                   setBlogButtonText={setBlogButtonText}
-                  set_author_color={set_color}
+                 
                 />
               }
             />
@@ -308,7 +297,7 @@ function App() {
               <DisplayArticle
                 setRenderBothBlogs={setRenderBothBlogs}
                 setBlogButtonText={setBlogButtonText}
-                set_author_color={set_color}
+           
               />
             }
           />

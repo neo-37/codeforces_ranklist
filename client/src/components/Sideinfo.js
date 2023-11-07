@@ -1,5 +1,6 @@
 import axios from "axios";
 import Announcement from "./Announcement.js";
+import CfHandleColor from "./multipurpose_components/CfHandleColor.js";
 function Sideinfo(props) {
   const url = process.env.REACT_APP_API_URL;
 
@@ -54,7 +55,7 @@ function Sideinfo(props) {
                   height="170px"
                 />
                 <div style={{ marginTop: "10px" }}>
-                  User : {props.cf_user.cf_handle}
+                  User : <CfHandleColor value={props.cf_user}/>
                   <br />
                   {/* since rating is not present so .rating will be undefined which is interpreted as false,this is done for handling
                   edge cases of user who haven't ever participate in contest */}

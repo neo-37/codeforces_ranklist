@@ -47,7 +47,7 @@ console.log(trial)
         />
       ) : (
         <div style={{ marginTop: "2rem" ,paddingBottom:"2rem"}}>
-         <Blogs articles={articles} isAdmin={isAdmin}/>
+         <Blogs articles={articles}  isAdmin={isAdmin}/>
         </div>
       )}
     </>

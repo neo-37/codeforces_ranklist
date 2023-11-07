@@ -49,7 +49,7 @@ const MyBlogs = ({ g_user, setRenderBothBlogs, setBlogButtonText }) => {
         </div>
       ) : (
         <div style={{ marginTop: "2rem" }}>
-          <Blogs articles={myarticles} g_user={g_user} />
+          <Blogs articles={myarticles} g_user={g_user} setmyarticles={setmyarticles}/>
         </div>
       )}
     </>
