@@ -7,8 +7,8 @@ import {
 } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
-import Mainpage from "./pages/MainPage";
-import Adminpage from "./pages/AdminPage";
+import MainPage from "./pages/MainPage";
+import AdminPage from "./pages/AdminPage";
 import UnauthorizedAccess from "./components/UnauthorizedAccess";
 import UrlNotFound from "./components/UrlNotFound";
 import axios from "axios";
@@ -141,7 +141,7 @@ function App() {
                 }}
               />
             ) : (
-              <Mainpage
+              <MainPage
                 list={arr}
                 g_user={g_user}
                 setGUser={setGUser}
@@ -180,7 +180,7 @@ function App() {
           <Route
             path=""
             element={
-              <Adminpage
+              <AdminPage
                 list={adArr}
                 setAdArr={setAdArr}
                 g_user={g_user}

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AdminTable from "../components/AdminTable";
 
-//THIS PAGE IS ONLY ACCESSIBLE IF YOU HAVE E-MAIL USER
-function Adminpage(props) {
+
+function AdminPage(props) {
   const [vList, setvList] = useState([]);
   const [uvList, setuvList] = useState([]);
   const [rAdmins, setRAdmins] = useState([]);
@@ -191,4 +191,4 @@ function Adminpage(props) {
     </>
   );
 }
-export default Adminpage;
+export default AdminPage;

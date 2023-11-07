@@ -1,10 +1,9 @@
 import Leaderboard from "../components/Leaderboard";
 import Sideinfo from "../components/Sideinfo";
 
-
 import "./Mainpage.css";
 
-function Mainpage(props) {
+function MainPage(props) {
   console.log("main page props", props);
   return (
     <>
@@ -45,4 +44,4 @@ function Mainpage(props) {
     </>
   );
 }
-export default Mainpage;
+export default MainPage;
