@@ -16,10 +16,10 @@ const MyBlogs = ({ g_user, setRenderBothBlogs, setBlogButtonText }) => {
       .then(({ data }) => {
         //in respose data holds array of article objects
         setmyarticles(data);
-        console.log("retrieve article", data);
+        console.log("myBlogs", data);
       })
       .catch((err) => {
-        console.log("receive article to server", err);
+        console.log("myBlogs", err);
       });
   };
 

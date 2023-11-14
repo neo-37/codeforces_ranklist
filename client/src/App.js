@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
-import MainPage from "./pages/MainPage";
+import MainPage from "./pages/MainPage"
 import AdminPage from "./pages/AdminPage";
 import UnauthorizedAccess from "./components/UnauthorizedAccess";
 import UrlNotFound from "./components/UrlNotFound";
@@ -249,6 +249,7 @@ function App() {
           <Route
             path="create-article"
             element={
+              cf_user?
               <div style={{ margin: "1rem 4rem" }}>
                 <Editor
                   g_user={g_user}
@@ -256,15 +257,17 @@ function App() {
                   setRenderBothBlogs={setRenderBothBlogs}
                   setBlogButtonText={setBlogButtonText}
                 />
-              </div>
+              </div>:<UnauthorizedAccess/>
             }
           />
           <Route
             path="my-blogs"
             element={
-              <>
-                <Outlet />
-              </>
+              cf_user?
+              
+              
+                <Outlet />:<UnauthorizedAccess/>
+            
             }
           >
             <Route
@@ -292,7 +295,7 @@ function App() {
           </Route>
 
           <Route
-            path=":article_id"
+            path=":published_article_id"
             element={
               <DisplayArticle
                 setRenderBothBlogs={setRenderBothBlogs}

@@ -12,14 +12,16 @@ function BlogPage({ g_user, cf_user ,setRenderBothBlogs, setBlogButtonText,setAu
 
   const retrieveArticleFromServer = () => {
     axios
-      .get(`${url}/retrieve_article`)
+      .get(`${url}/retrieve_article`,{params:{all_blogs_publish_status:2}})
       .then(({ data }) => {
-        //in respose data holds array of article objects
-        const published_articles = data.filter(
-          (article) => article.review_status === 2
-        );
-        setarticles(published_articles);
-        console.log("published article", published_articles);
+
+        // //in respose data holds array of article objects
+        // const published_articles = data.filter(
+        //   (article) => article.review_status === 2
+        // );
+
+        setarticles(data);
+        // console.log("published article", published_articles);
       })
       .catch((err) => {
         console.log("receive article to server", err);
@@ -31,8 +33,7 @@ function BlogPage({ g_user, cf_user ,setRenderBothBlogs, setBlogButtonText,setAu
     setRenderBothBlogs(false);
     setBlogButtonText("My Blogs");
   }, []);
-const {trial}=useParams()
-console.log(trial)
+
   return (
     <>
       {articles.length === 0 ? (

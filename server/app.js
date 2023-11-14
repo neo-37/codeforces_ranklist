@@ -9,7 +9,6 @@ const mongoose = require("mongoose");
 const fs = require("fs");
 require("./auth");
 
-const ArticlesData = require("./db_models/ArticleModel");
 
 mongoose
   .connect(process.env.MONGODB_URI_LOCAL)
@@ -503,102 +502,9 @@ app.get("/delete_announcement", async (req, res) => {
   res.status(200).json({ message: "Image deleted successfully!" });
 });
 
-app.post("/edit_article_title", (req, res) => {
-  const key_title = req.body.new_title.trim().toLowerCase();
-  const key = req.body.email + key_title;
-  ArticlesData.updateOne({unique_key:req.body.unique_key}, { $set: {unique_key:key} })
-  .then((result) => {
-    console.log("title edited", result);
-  })
-  .catch((err) => {
-    console.error("edit_article_title post", err);
-  });
 
-  res.end();
-});
-
-app.post("/delete_article", (req, res) => {
-  ArticlesData.deleteOne({unique_key:req.body.unique_key})
-  .then((result) => {
-    console.log("deleted article", result);
-  })
-  .catch((err) => {
-    console.error("delete_article post", err);
-  });
-
-  res.end();
-});
-app.post("/save_article", (req, res) => {
-  console.log("save article", req.body);
-
-  const key_title = req.body.title.trim().toLowerCase();
-  const key = req.body.email + key_title;
-  console.log(key);
-  ArticlesData.updateOne(
-    { unique_key: key },
-    {
-      email: req.body.email,
-      author: req.body.author,
-      title: req.body.title,
-      ops_array: req.body.ops_array,
-      article_html: req.body.html_string,
-      review_status: req.body.review_status,
-    },
-    { upsert: true } //act as insert if no match is found
-  )
-    .then((result) => {
-      console.log("article saved", result);
-    })
-    .catch((err) => {
-      console.error("save_article post", err);
-    });
-
-  res.end(); //always end a request by send,end,status etc,else it doesn't end by itself
-  //end gives status 200 with empty data
-});
-
-app.get("/retrieve_article", (req, res) => {
-  match = {};
-  if (req.user) match = { email: req.user._json.email };
-  console.log("query", req.query.key);
-  if (req.query.key) match = { unique_key: req.query.key };
-  console.log("match", match);
-  ArticlesData.find(match)
-    .then((result) => {
-      // console.log("article retrieved", result);
-     
-      res.send(result);
-      // res.end();
-    })
-    .catch((err) => {
-      console.error("retrieve_article pt", err);
-    });
-});
-
-app.get("/cf_handle_details",(req,res)=>{
-
- const handle=req.query.cf_handle;
-
-    let url = CF_API + handle;
-
-    fetch(url)
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw("wrong with cf api")
-      })
-      .then((response)=>{
-        console.log(response.result)
-res.send(response.result[0]);
-      })
-
-      .catch((err)=>{
-        console.error("cf_handle_details","something wrong with cf api",err)
-        res.end()
-      })
-
-})
+const blogBackend=require("./BlogBackend")
+blogBackend(app);//we need to pass this app instance, creating another one in that file won't work
 
 // Catch-all route (should be defined after all specific routes)
 app.get("*", (req, res) => {

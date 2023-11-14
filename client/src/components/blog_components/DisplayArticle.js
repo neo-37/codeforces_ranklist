@@ -10,17 +10,26 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
   const [article, setarticle] = useState(null);
 
   const navigate = useNavigate();
-  let { review_article_id ,article_id} = useParams();
-  const db_valid_article_id=(article_id?article_id:review_article_id).replace(/-/g, ' ');
-  
-  console.log("display article", article_id,review_article_id);
+  let { review_article_id, article_id, published_article_id } = useParams();
+  const db_valid_article_id = (
+    article_id
+      ? article_id
+      : review_article_id
+      ? review_article_id
+      : published_article_id
+  ).replace(/-/g, " ");
 
+  console.log("display article", article_id, review_article_id);
 
   const url = process.env.REACT_APP_API_URL;
 
   const retrieveArticleFromServer = () => {
     axios
-      .get(`${url}/retrieve_article`, { params: { key: db_valid_article_id} })
+      .get(`${url}/retrieve_article`, {
+        params: published_article_id
+          ? { published_key: db_valid_article_id }
+          : { key: db_valid_article_id },
+      })
       .then(({ data }) => {
         //in respose data holds array of article objects
         setarticle(data[0]);
@@ -43,40 +52,46 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
   };
 
   const rejectArticle = () => {
-    // setarticle({...article,review_status : -1});
-    article.review_status=-1;
+    // setarticle({...article,review_status : -1});//this won't work due to async effect of useState, so even when the function is sync in nature its effect won't show immediately, we will have to handle the side effects in useEffect
+    article.review_status = -1;
     sendArticleToServer(article);
   };
 
   const publishArticle = () => {
-    // setarticle({...article,review_status : 2});
-    article.review_status=2;
+    
+    article.review_status = 2;
+    article.publish_status = true;
+    console.log('dp now', article)
     sendArticleToServer(article);
   };
 
-  const [cfcolor,setCfcolor]=useState(null);
+  const [cfcolor, setCfcolor] = useState(null);
 
-  const get_cf_handle_details=async ()=>{
-  await axios
-     .get(`${url}/cf_handle_details`,{params:{cf_handle:article.author}})
-     .then(({data}) => {
-      
-setCfcolor({cf_handle:data.handle,rating:data.rating,display_article:true});
+  const get_cf_handle_details = async () => {
+    await axios
+      .get(`${url}/cf_handle_details`, {
+        params: { cf_handle: article.author },
+      })
+      .then(({ data }) => {
+        setCfcolor({
+          cf_handle: data.handle,
+          rating: data.rating,
+          display_article: true,
+        });
+      })
+      .catch((err) => {
+        console.log("get cf handle details DisplayArticle", err);
+      });
+  };
 
-     })
-     .catch((err) => {
-       console.log("get cf handle details DisplayArticle", err);
-     });
-  }
-
-  useEffect(()=>{
+  useEffect(() => {
     if (article) {
       if (isAdmin && article.review_status <= 0) navigate("..");
       else setCurHtml(htmlParser(article.article_html));
       get_cf_handle_details();
     }
-  },[article])
-  
+  }, [article]);
+
   useEffect(() => {
     // //to not review article which has been retracted
     // if (review_article_id && isAdmin && checkArticle() === false) {
@@ -85,11 +100,10 @@ setCfcolor({cf_handle:data.handle,rating:data.rating,display_article:true});
 
     setRenderBothBlogs(true);
     setBlogButtonText("My Blogs");
-    
+
     retrieveArticleFromServer(db_valid_article_id);
 
-    console.log("review article id", db_valid_article_id,article);
-    
+    console.log("review article id", db_valid_article_id, article);
   }, []);
 
   return (
@@ -117,7 +131,7 @@ setCfcolor({cf_handle:data.handle,rating:data.rating,display_article:true});
             }}
           >
             <h3 className="pb-4 mb-4 fst-italic border-bottom">
-              By {cfcolor?<CfHandleColor value={cfcolor}/>: article.author}
+              By {cfcolor ? <CfHandleColor value={cfcolor} /> : article.author}
             </h3>
 
             <article className="blog-post">{curHmtl}</article>
@@ -134,26 +148,26 @@ setCfcolor({cf_handle:data.handle,rating:data.rating,display_article:true});
           >
             {isAdmin ? (
               <div className="hstack gap-5">
-
-              
                 <Link
                   to=".."
                   className="p-2  btn"
                   style={{ color: "black", backgroundColor: "red" }}
                   onClick={rejectArticle}
                 >
-                  {article.review_status===1?"Reject":"Unpublish"}
+                  {article.review_status === 1 ? "Reject" : "Unpublish"}
                 </Link>
-                {article.review_status===1?
-                <Link
-                  to=".."
-                  onClick={publishArticle}
-                  className="p-2 ms-auto btn btn-success"
-                  style={{ color: "black " }}
-                >
-                  Publish
-                </Link>
-                :<></>}
+                {article.review_status === 1 ? (
+                  <Link
+                    to=".."
+                    onClick={publishArticle}
+                    className="p-2 ms-auto btn btn-success"
+                    style={{ color: "black " }}
+                  >
+                    Publish
+                  </Link>
+                ) : (
+                  <></>
+                )}
               </div>
             ) : (
               <></>

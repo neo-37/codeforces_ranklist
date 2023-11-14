@@ -37,6 +37,12 @@ const articleSchema = new mongoose.Schema({
     default: 0,//0 means not under review, 1 means under review,2 means published,-1 means rejected
     required:true
   }
+  ,
+  publish_status:{
+    type:Boolean,
+    default:false
+  }
+  //review_status is 2 and publish_status is true then article is update to latest version
 });
 
 const ArticlesData = mongoose.model("article", articleSchema);//naming convention for mongodb collections is camelCase so first letter will by default become small even if we write capital here
