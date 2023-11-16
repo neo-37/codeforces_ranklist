@@ -220,14 +220,14 @@ function App() {
           element={
            
             <>
-             {g_user?
+             {cf_user?
               <div style={{ marginTop: "2rem" }}>
                 <BlogNavPage
                   render_both_blog_buttons={renderBothBlogs}
                   blog_button_text={blogButtonText}
-                  
+                  cf_user={cf_user}
                 />
-              </div>:<></>}
+              </div>:null}
 
               <Outlet />
             </>

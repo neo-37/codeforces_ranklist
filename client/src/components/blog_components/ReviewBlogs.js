@@ -33,7 +33,15 @@ const ReviewBlogs = ({ g_user, isAdmin }) => {
   return (
     <>
       {reviewArticles == null ? (
-        <></>
+        <BarLoader
+          color="#fb5607"
+          size={800}
+          cssOverride={{
+            marginTop: "25%",
+            marginLeft: "45%",
+            marginRight: "auto",
+          }}
+        />
       ) : reviewArticles.length === 0 ? (
         
         <div style={{display:"flex",justifyContent:"center", marginTop: "2rem" }}>

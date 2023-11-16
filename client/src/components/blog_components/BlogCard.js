@@ -127,9 +127,9 @@ const BlogCard = ({ article, g_user, isAdmin, handleDeleteClick }) => {
             onClick={isAdmin ? handleReviewClick : handleReadClick}
           >
             {isAdmin
-              ? localArticle.review_status === 1
+              ? (localArticle.review_status === 1
                 ? "Review"
-                : "Published"
+                : "Published")
               : "Read"}
           </button>
           {!isAdmin && g_user && g_user.email === localArticle.email ? (

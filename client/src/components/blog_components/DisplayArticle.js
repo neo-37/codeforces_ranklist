@@ -4,6 +4,7 @@ import htmlParser from "html-react-parser";
 import axios from "axios";
 import { BeatLoader } from "react-spinners";
 import CfHandleColor from "../multipurpose_components/CfHandleColor";
+import UrlNotFound from "../UrlNotFound";
 
 function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
   const [curHmtl, setCurHtml] = useState(<></>);
@@ -11,6 +12,7 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
 
   const navigate = useNavigate();
   let { review_article_id, article_id, published_article_id } = useParams();
+
   const db_valid_article_id = (
     article_id
       ? article_id
@@ -51,20 +53,44 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
       });
   };
 
-  const rejectArticle = () => {
+  //#
+  //handle the case when a version has been published and we reject the new edit, then it should be visibled in the review section as published
+  //also on rejection in such case,the new edit is taking effect in published article
+  const rejectArticle = async () => {
     // setarticle({...article,review_status : -1});//this won't work due to async effect of useState, so even when the function is sync in nature its effect won't show immediately, we will have to handle the side effects in useEffect
     article.review_status = -1;
-    sendArticleToServer(article);
+    await sendArticleToServer(article);
+    navigate(".."); //doing navigation here instead of converting a button to link allows for the target component to fetch the data after the changes have taken effect
   };
 
-  const publishArticle = () => {
-    
+  const publishArticle = async () => {
     article.review_status = 2;
     article.publish_status = true;
-    console.log('dp now', article)
-    sendArticleToServer(article);
+    console.log("dp now", article);
+    await sendArticleToServer(article);
+    navigate("..");
   };
+  const unpublishArticle = () => {
+    axios
+      .post(`${url}/delete_article`, {
+        unique_key: article.unique_key,
+        retract: true,
+      })
+      .then(async (response) => {
+        const updatedArticle = {
+          ...article,
+          publish_status: false,
+          review_status: 0,
+        };
 
+        await sendArticleToServer(updatedArticle);
+        navigate("..");
+        console.log("article published retracted", response);
+      })
+      .catch((err) => {
+        console.log("retract article from server", err);
+      });
+  };
   const [cfcolor, setCfcolor] = useState(null);
 
   const get_cf_handle_details = async () => {
@@ -120,7 +146,7 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
             //borderColor: "red",
           }}
         />
-      ) : (
+      ) :(
         <>
           <div
             style={{
@@ -148,23 +174,27 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
           >
             {isAdmin ? (
               <div className="hstack gap-5">
-                <Link
-                  to=".."
+                <button
+                  // to=".."
                   className="p-2  btn"
                   style={{ color: "black", backgroundColor: "red" }}
-                  onClick={rejectArticle}
+                  onClick={
+                    article.review_status === 1
+                      ? rejectArticle
+                      : unpublishArticle
+                  }
                 >
                   {article.review_status === 1 ? "Reject" : "Unpublish"}
-                </Link>
+                </button>
                 {article.review_status === 1 ? (
-                  <Link
-                    to=".."
+                  <button
+                    // to=".."
                     onClick={publishArticle}
                     className="p-2 ms-auto btn btn-success"
                     style={{ color: "black " }}
                   >
                     Publish
-                  </Link>
+                  </button>
                 ) : (
                   <></>
                 )}

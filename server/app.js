@@ -311,12 +311,23 @@ function check_and_add(handle, guser, cb) {
     //very imp to return the response.json(), as it is a promise that will be used in then
     fetch(url)
       .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error("Something went wrong");
+        if (response.ok) // Status code is in the range 200-299
+        {
+          const contentType = response.headers.get('Content-Type');
+      
+      if (contentType && contentType.includes('text/html')) {
+        // The response is HTML
+       throw new Error(`CF API is down ${response.text()}`)
+      } else {
+        // Handle other content types or JSON
+        return response.json();
+      }
+    }
+    else
+        throw new Error(`HTTP error! Status: ${response.status}`);
       })
       .then((response) => {
+ 
         add_user(response.result[0], guser);
         console.log("check_and_add", response.result[0]);
         cb({
