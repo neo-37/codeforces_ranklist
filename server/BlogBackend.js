@@ -27,16 +27,16 @@ app.post("/edit_article_title", (req, res) => {
   app.post("/delete_article", async(req, res) => {
    
     try {
-      // Find the author and populate their articles
-      const article = await ArticlesData.findOne({unique_key:req.body.unique_key})
-      console.log('delete articles',article.unique_key)
-      if (!article) {
-        console.log('Author not found');
-        res.end();
-        return
-      }
+      // // Find the author and populate their articles
+      // const article = await ArticlesData.findOne({unique_key:req.body.unique_key})
+      // console.log('delete articles',article.unique_key)
+      // if (!article) {
+      //   console.log('Author not found');
+      //   res.end();
+      //   return
+      // }
 
-        await PublishedArticlesData.deleteOne({linking_key:article._id});
+        await PublishedArticlesData.deleteOne({unique_key:req.body.unique_key});
 
       if(!req.body.retract)
       {
@@ -54,8 +54,8 @@ app.post("/edit_article_title", (req, res) => {
   app.post("/save_article", (req, res) => {
     const key_title = req.body.title.trim().toLowerCase();
     const key = req.body.email + key_title;
-    console.log('save article',key);
-    if (req.body.publish_status === true) {
+    console.log('save article',req.body);
+    if (req.body.publish_status === true&&req.body.review_status===true&&req.body.text_editor_save===undefined) {
       PublishedArticlesData.updateOne(
         { linking_key: req.body._id },
         {
@@ -74,6 +74,9 @@ app.post("/edit_article_title", (req, res) => {
           console.error("save_article post", err);
         });
     }
+
+    
+// If req.body.publish_status is undefined in your code, the updateOne operation will still proceed, and the existing publish_status field in the document will not be modified.
     ArticlesData.updateOne(
       { unique_key: key },
       {
@@ -81,7 +84,7 @@ app.post("/edit_article_title", (req, res) => {
         author: req.body.author,
         title: req.body.title,
         ops_array: req.body.ops_array,
-        article_html: req.body.html_string,//it html string for the incoming object
+        article_html: req.body.article_html,//it html string for the incoming object
         review_status: req.body.review_status,
         publish_status:req.body.publish_status
       },
@@ -161,7 +164,7 @@ app.post("/edit_article_title", (req, res) => {
     return PublishedArticlesData.find(match)
       .populate({
         path: "linking_key", //the path we want to populate,i.e., the foreign key like(nosql doesn't have concept of foreign key) attribute in publised article db
-        select: "author review_status publish_status ops_array",
+        select: "author review_status publish_status",
       }) //Specify the path to populate
       .then((result) => {
         const joint_data = result.map((res) => {
@@ -172,7 +175,7 @@ app.post("/edit_article_title", (req, res) => {
             review_status: res.linking_key.review_status,
             author: res.linking_key.author,
             publish_status:res.linking_key.publish_status,
-            ops_array:res.linking_key.ops_array
+            ops_array:res.ops_array
           };
           return jd; //this is a promise as every async function return a promise(here jd will be wrapped in a promise and then returned as we know from namaste javascript)
         });
@@ -198,7 +201,7 @@ app.post("/edit_article_title", (req, res) => {
         res.send(jd);
       });
     } else {
-      //retrieve published for display
+      //retrieve published for display and also for reverting 
       if (req.query.published_key) {
         match = { unique_key: req.query.published_key };
         find_published_articles(match).then((jd) => {

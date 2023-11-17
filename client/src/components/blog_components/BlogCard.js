@@ -11,16 +11,16 @@ const BlogCard = ({ article, g_user, isAdmin, handleDeleteClick }) => {
   //gotta endcode the route else for characters like ? in the end it won't be accessible in params in the target component
   const handleReadClick = () => {
     navigate(encodeURIComponent(child_route.replace(/ /g, "-")), {
-      state: article,
+      state: localArticle,
     });
   };
   const handleReviewClick = () => {
     navigate(encodeURIComponent(child_route.replace(/ /g, "-")), {
-      state: article,
+      state: localArticle,
     });
   };
   const handleEditClick = () => {
-    navigate("../create-article", { state: article });
+    navigate("../create-article", { state: localArticle});
   };
 
   const url = process.env.REACT_APP_API_URL;
@@ -45,7 +45,7 @@ const BlogCard = ({ article, g_user, isAdmin, handleDeleteClick }) => {
     sendArticleToServer(updatedArticle);
   };
 
-  const retractPublishRequest = () => {
+  const retractReviewRequest = () => {
     // Update the local article state
     const updatedArticle = { ...localArticle, review_status: 0 };
     setLocalArticle(updatedArticle);
@@ -74,6 +74,7 @@ const BlogCard = ({ article, g_user, isAdmin, handleDeleteClick }) => {
       });
   };
 
+ 
   const revertArticleToLatestPublisedVersion = () => {
     axios
       .get(`${url}/retrieve_article`,{params: {
@@ -84,7 +85,7 @@ const BlogCard = ({ article, g_user, isAdmin, handleDeleteClick }) => {
         if(data.length)
         {
         
-        const updatedArticle = { ...localArticle,html_string:data[0].article_html,title:data[0].title,ops_array:data[0].ops_array,review_status:2 };
+        const updatedArticle = { ...localArticle,article_html:data[0].article_html,title:data[0].title,ops_array:data[0].ops_array,review_status:2,unique_key:data[0].unique_key};//adding unique_key here for changing the state not needed for sending to article
         setLocalArticle(updatedArticle);
         sendArticleToServer(updatedArticle);
         }
@@ -183,7 +184,7 @@ const BlogCard = ({ article, g_user, isAdmin, handleDeleteClick }) => {
                         style={{ color: "#DEE2E6" }}
                         onClick={
                           localArticle.review_status === 1
-                            ? retractPublishRequest
+                            ? retractReviewRequest
                             : makeReviewRequest
                         }
                       >

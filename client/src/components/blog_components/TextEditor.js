@@ -16,6 +16,7 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
   const [hideLockButton,setHideLockButton]=useState(false);
 
   const [inputText, setInputText] = useState("");
+ 
 
   const { state } = useLocation();
   console.log("text editor state", state); //null is no data
@@ -50,7 +51,7 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
   const retrieveArticleFromServer = async () => {
     if (state) {
       axios
-        .get(`${url}/retrieve_article`, { params: { key: (state.email.concat(title.trim().toLowerCase())) } })
+        .get(`${url}/retrieve_article`, { params: { key: state.unique_key } })
         .then(({ data }) => {
           //in respose data holds array of article objects
           console.log('text editor',data)
@@ -66,7 +67,7 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
   
   const sendArticleToServer = async (article_data) => {
     axios
-      .post(`${url}/save_article`, article_data)
+      .post(`${url}/save_article`,{...article_data,text_editor_save:true})
       .then((response) => {
         console.log("article sent", response);
       })
@@ -102,14 +103,15 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
       author: cf_user != null ? `${cf_user.cf_handle}` : "neo_37",
       title: `${title}`,
       ops_array: article_data_array,
-      html_string: htmlString,
-      review_status: 0,
+      article_html: htmlString,
+      review_status: 0
     });
   };
   const handleSaveArticleClick = async () => {
     if (isDisabled) {
       await retrieveArticleFromServer();
-      if (!retrievedArticle) {
+      if (!retrievedArticle)
+      {
         sendArticleHelp();
       } else {
         await save_new_title();
@@ -172,7 +174,7 @@ const Editor = ({ g_user, cf_user, setRenderBothBlogs, setBlogButtonText }) => {
    
   }, []);
 
-  
+ 
   return (
     <>
       <div className="hstack gap-3" style={{ marginTop: "1rem" }}>

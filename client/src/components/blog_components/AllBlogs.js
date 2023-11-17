@@ -19,13 +19,10 @@ function BlogPage({
   const retrieveArticleFromServer = () => {
     axios
       .get(`${url}/retrieve_article`, {
-        params: { all_blogs_publish_status: 2 },
+        params: { all_blogs_publish_status: true },
       })
       .then(({ data }) => {
-        // //in respose data holds array of article objects
-        // const published_articles = data.filter(
-        //   (article) => article.review_status === 2
-        // );
+       
 
         setarticles(data);
         // console.log("published article", published_articles);
@@ -61,7 +58,7 @@ function BlogPage({
             marginTop: "2rem",
           }}
         >
-          <h1>No articles to review </h1>
+          <h1>No articles to view </h1>
         </div>
        : 
         <div style={{ marginTop: "2rem", paddingBottom: "2rem" }}>

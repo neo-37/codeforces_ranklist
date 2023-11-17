@@ -17,7 +17,8 @@ const publisedArticleSchema = new mongoose.Schema({
   },
   ops_array:{
     type: [{}], //here data type will be array of mixed,this requires extra step while saving as it won't detect changes automotically
-    default: [{ insert: "\n" }]
+    default: [{ insert: "\n" }],
+    required:true
   },
   article_html: {
     type: String,

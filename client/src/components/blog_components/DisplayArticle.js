@@ -59,7 +59,9 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
   const rejectArticle = async () => {
     // setarticle({...article,review_status : -1});//this won't work due to async effect of useState, so even when the function is sync in nature its effect won't show immediately, we will have to handle the side effects in useEffect
     article.review_status = -1;
-    await sendArticleToServer(article);
+
+    const temp_article={...article,reject:true}
+    await sendArticleToServer(temp_article);
     navigate(".."); //doing navigation here instead of converting a button to link allows for the target component to fetch the data after the changes have taken effect
   };
 
