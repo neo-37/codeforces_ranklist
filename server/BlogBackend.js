@@ -55,7 +55,7 @@ app.post("/edit_article_title", (req, res) => {
     const key_title = req.body.title.trim().toLowerCase();
     const key = req.body.email + key_title;
     console.log('save article',req.body);
-    if (req.body.publish_status === true&&req.body.review_status===true&&req.body.text_editor_save===undefined) {
+    if (req.body.publish_status === true&&req.body.review_status===2&&req.body.text_editor_save===undefined) {
       PublishedArticlesData.updateOne(
         { linking_key: req.body._id },
         {
