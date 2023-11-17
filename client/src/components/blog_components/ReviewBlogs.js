@@ -15,10 +15,10 @@ const ReviewBlogs = ({ g_user, isAdmin }) => {
       .then(({ data }) => {
         //in respose data holds array of article objects
         const under_review_articles = data.filter(
-          (article) => article.review_status > 0
+          (article) => (article.review_status > 0||article.publish_status)
         );
         setreviewArticles(under_review_articles);
-        console.log("retrieve article", data);
+        console.log("retrieve articles from server",data, under_review_articles);
       })
       .catch((err) => {
         console.log("receive article to server", err);

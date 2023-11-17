@@ -38,7 +38,7 @@ app.post("/edit_article_title", (req, res) => {
 
         await PublishedArticlesData.deleteOne({unique_key:req.body.unique_key});
 
-      if(!req.body.retract)
+      if(!req.body.unpublish&&!req.body.retract)
       {
       await ArticlesData.deleteOne({unique_key:req.body.unique_key})
       }
@@ -164,7 +164,7 @@ app.post("/edit_article_title", (req, res) => {
     return PublishedArticlesData.find(match)
       .populate({
         path: "linking_key", //the path we want to populate,i.e., the foreign key like(nosql doesn't have concept of foreign key) attribute in publised article db
-        select: "author review_status publish_status",
+        select: "author review_status publish_status email",
       }) //Specify the path to populate
       .then((result) => {
         const joint_data = result.map((res) => {
@@ -175,7 +175,8 @@ app.post("/edit_article_title", (req, res) => {
             review_status: res.linking_key.review_status,
             author: res.linking_key.author,
             publish_status:res.linking_key.publish_status,
-            ops_array:res.ops_array
+            ops_array:res.ops_array,
+            email:res.linking_key.email
           };
           return jd; //this is a promise as every async function return a promise(here jd will be wrapped in a promise and then returned as we know from namaste javascript)
         });

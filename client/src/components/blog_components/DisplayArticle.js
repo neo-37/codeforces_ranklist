@@ -7,7 +7,7 @@ import CfHandleColor from "../multipurpose_components/CfHandleColor";
 import UrlNotFound from "../UrlNotFound";
 
 function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
-  const [curHmtl, setCurHtml] = useState(<></>);
+  const [curHtml, setCurHtml] = useState(<></>);
   const [article, setarticle] = useState(null);
 
   const navigate = useNavigate();
@@ -21,7 +21,12 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
       : published_article_id
   ).replace(/-/g, " ");
 
-  console.log("display article", article_id, review_article_id);
+  console.log(
+    "display article params",
+    article_id,
+    review_article_id,
+    published_article_id
+  );
 
   const url = process.env.REACT_APP_API_URL;
 
@@ -33,9 +38,26 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
           : { key: db_valid_article_id },
       })
       .then(({ data }) => {
+        console.log("display test", data);
         //in respose data holds array of article objects
-        setarticle(data[0]);
-        console.log("retrieve article", data[0]);
+        if (
+          review_article_id &&
+          data[0].review_status !== 1 &&
+          data[0].publish_status === true
+        ) {
+          axios
+            .get(`${url}/retrieve_article`, {
+              params: { published_key: db_valid_article_id },
+            })
+            .then(({ data }) => {
+              setarticle(data[0]);
+              
+            })
+            .catch((err) => {
+              console.log("receive article to server2", err);
+            });
+        } else 
+          setarticle(data[0]);
       })
       .catch((err) => {
         console.log("receive article to server", err);
@@ -54,13 +76,12 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
   };
 
   //#
-  //handle the case when a version has been published and we reject the new edit, then it should be visibled in the review section as published
-  //also on rejection in such case,the new edit is taking effect in published article
+  //handle the case when a version has been published and we reject the new edit, then it should be visible in the review section as published
   const rejectArticle = async () => {
     // setarticle({...article,review_status : -1});//this won't work due to async effect of useState, so even when the function is sync in nature its effect won't show immediately, we will have to handle the side effects in useEffect
     article.review_status = -1;
 
-    const temp_article={...article,reject:true}
+    const temp_article = { ...article, reject: true };
     await sendArticleToServer(temp_article);
     navigate(".."); //doing navigation here instead of converting a button to link allows for the target component to fetch the data after the changes have taken effect
   };
@@ -76,21 +97,22 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
     axios
       .post(`${url}/delete_article`, {
         unique_key: article.unique_key,
-        retract: true,
+        unpublish: true,
       })
       .then(async (response) => {
+        //the value will be null,won't be updated,title and mail are needed as we are making the key again everytime we save
         const updatedArticle = {
-          ...article,
+          title:article.title,
+          email:article.email,
           publish_status: false,
           review_status: 0,
         };
-
         await sendArticleToServer(updatedArticle);
         navigate("..");
-        console.log("article published retracted", response);
+        
       })
       .catch((err) => {
-        console.log("retract article from server", err);
+        console.log("unpublish article fn err", err);
       });
   };
   const [cfcolor, setCfcolor] = useState(null);
@@ -114,17 +136,20 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
 
   useEffect(() => {
     if (article) {
-      if (isAdmin && article.review_status <= 0) navigate("..");
-      else setCurHtml(htmlParser(article.article_html));
+      if (
+        isAdmin &&
+        article.review_status <= 0 &&
+        article.publish_status === false
+      )
+        navigate("..");
+      else
+      setCurHtml(htmlParser(article.article_html));
       get_cf_handle_details();
     }
   }, [article]);
 
   useEffect(() => {
-    // //to not review article which has been retracted
-    // if (review_article_id && isAdmin && checkArticle() === false) {
-    //   navigate("..");
-    // }
+   
 
     setRenderBothBlogs(true);
     setBlogButtonText("My Blogs");
@@ -148,7 +173,7 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
             //borderColor: "red",
           }}
         />
-      ) :(
+      ) : (
         <>
           <div
             style={{
@@ -162,7 +187,7 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
               By {cfcolor ? <CfHandleColor value={cfcolor} /> : article.author}
             </h3>
 
-            <article className="blog-post">{curHmtl}</article>
+            <article className="blog-post">{curHtml}</article>
           </div>
 
           <div
