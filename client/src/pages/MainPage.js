@@ -7,7 +7,7 @@ function MainPage(props) {
   console.log("main page props", props);
   return (
     <>
-      <div
+      <div 
         className="row"
         style={{ height: "100%", width: "100%", margin: "0", padding: "0" }}
       >

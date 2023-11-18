@@ -27,14 +27,6 @@ app.post("/edit_article_title", (req, res) => {
   app.post("/delete_article", async(req, res) => {
    
     try {
-      // // Find the author and populate their articles
-      // const article = await ArticlesData.findOne({unique_key:req.body.unique_key})
-      // console.log('delete articles',article.unique_key)
-      // if (!article) {
-      //   console.log('Author not found');
-      //   res.end();
-      //   return
-      // }
 
         await PublishedArticlesData.deleteOne({unique_key:req.body.unique_key});
 
@@ -83,10 +75,11 @@ app.post("/edit_article_title", (req, res) => {
         email: req.body.email,
         author: req.body.author,
         title: req.body.title,
+        review_status: req.body.review_status,
+        publish_status:req.body.publish_status,
+        date:Date.now(),
         ops_array: req.body.ops_array,
         article_html: req.body.article_html,//it html string for the incoming object
-        review_status: req.body.review_status,
-        publish_status:req.body.publish_status
       },
       { upsert: true } //act as insert if no match is found
     )
@@ -176,7 +169,8 @@ app.post("/edit_article_title", (req, res) => {
             author: res.linking_key.author,
             publish_status:res.linking_key.publish_status,
             ops_array:res.ops_array,
-            email:res.linking_key.email
+            email:res.linking_key.email,
+            date:res.linking_key.date
           };
           return jd; //this is a promise as every async function return a promise(here jd will be wrapped in a promise and then returned as we know from namaste javascript)
         });

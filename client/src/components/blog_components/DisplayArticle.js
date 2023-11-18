@@ -9,6 +9,7 @@ import UrlNotFound from "../UrlNotFound";
 function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
   const [curHtml, setCurHtml] = useState(<></>);
   const [article, setarticle] = useState(null);
+  const [articleDate, setArticleDate] = useState(null);
 
   const navigate = useNavigate();
   let { review_article_id, article_id, published_article_id } = useParams();
@@ -51,13 +52,11 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
             })
             .then(({ data }) => {
               setarticle(data[0]);
-              
             })
             .catch((err) => {
               console.log("receive article to server2", err);
             });
-        } else 
-          setarticle(data[0]);
+        } else setarticle(data[0]);
       })
       .catch((err) => {
         console.log("receive article to server", err);
@@ -102,14 +101,13 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
       .then(async (response) => {
         //the value will be null,won't be updated,title and mail are needed as we are making the key again everytime we save
         const updatedArticle = {
-          title:article.title,
-          email:article.email,
+          title: article.title,
+          email: article.email,
           publish_status: false,
           review_status: 0,
         };
         await sendArticleToServer(updatedArticle);
         navigate("..");
-        
       })
       .catch((err) => {
         console.log("unpublish article fn err", err);
@@ -142,15 +140,21 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
         article.publish_status === false
       )
         navigate("..");
-      else
-      setCurHtml(htmlParser(article.article_html));
-      get_cf_handle_details();
+      else {
+        setCurHtml(htmlParser(article.article_html));
+
+        const date = new Date(article.date); //Date is reserverd keyword in js
+        setArticleDate({
+          numericalDay: date.getDate(),
+          month: date.getMonth(),
+          year: date.getFullYear(),
+        });
+        get_cf_handle_details();
+      }
     }
   }, [article]);
 
   useEffect(() => {
-   
-
     setRenderBothBlogs(true);
     setBlogButtonText("My Blogs");
 
@@ -177,19 +181,34 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
         <>
           <div
             style={{
-              marginTop: "4rem",
+             
               marginLeft: "8rem",
               marginRight: "8rem",
               paddingBottom: "2rem",
             }}
           >
-            <h3 className="pb-4 mb-4 fst-italic border-bottom">
-              By {cfcolor ? <CfHandleColor value={cfcolor} /> : article.author}
-            </h3>
+            <div style={{ textAlign: "center" }}>
+              <h1 className=" fst-italic pb-2 border-bottom">{article.title}</h1>
+            </div>
+            <div
+              className=""
+              style={{ display: "flex", justifyContent: "space-between" }}
+            >
+              <div style={{ marginLeft: "auto" }}>
+                <h4>By {cfcolor ? <CfHandleColor value={cfcolor} /> : article.author}
+                </h4>
+                <p>
+                  {articleDate
+                    ? `${articleDate.numericalDay}/${articleDate.month}/${articleDate.year}`
+                    : ""}
+                </p>
+              </div>
+            </div>
 
-            <article className="blog-post">{curHtml}</article>
+            <div>
+              <article className="blog-post">{curHtml}</article>
+            </div>
           </div>
-
           <div
             className="container"
             style={{
