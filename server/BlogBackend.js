@@ -1,11 +1,11 @@
-
-const blogBackend=(app)=>{
+const blogBackend = (app) => {
   const CF_API = "https://codeforces.com/api/user.info?handles=";
 
-    const ArticlesData = require("./db_models/ArticleModel");
-    const PublishedArticlesData = require("./db_models/PublishedArticleModel");
+  const ArticlesData = require("./db_models/ArticleModel");
+  const PublishedArticlesData = require("./db_models/PublishedArticleModel");
+  const CommentsData = require("./db_models/CommentModel");
 
-app.post("/edit_article_title", (req, res) => {
+  app.post("/edit_article_title", (req, res) => {
     const key_title = req.body.new_title.trim().toLowerCase();
     const key = req.body.email + key_title;
     ArticlesData.updateOne(
@@ -18,36 +18,35 @@ app.post("/edit_article_title", (req, res) => {
       .catch((err) => {
         console.error("edit_article_title post", err);
       });
-  
+
     res.end();
   });
-  
-  
 
-  app.post("/delete_article", async(req, res) => {
-   
+  app.post("/delete_article", async (req, res) => {
     try {
+      await PublishedArticlesData.deleteOne({
+        unique_key: req.body.unique_key,
+      });
 
-        await PublishedArticlesData.deleteOne({unique_key:req.body.unique_key});
-
-      if(!req.body.unpublish&&!req.body.retract)
-      {
-      await ArticlesData.deleteOne({unique_key:req.body.unique_key})
+      if (!req.body.unpublish && !req.body.retract) {
+        await ArticlesData.deleteOne({ unique_key: req.body.unique_key });
       }
-      console.log('article deleted successfully');
+      console.log("article deleted successfully");
     } catch (error) {
-      console.error('Error deleting article:', error);
+      console.error("Error deleting article:", error);
     }
     res.end();
   });
 
-
-
   app.post("/save_article", (req, res) => {
     const key_title = req.body.title.trim().toLowerCase();
     const key = req.body.email + key_title;
-    console.log('save article',req.body);
-    if (req.body.publish_status === true&&req.body.review_status===2&&req.body.text_editor_save===undefined) {
+    console.log("save article", req.body);
+    if (
+      req.body.publish_status === true &&
+      req.body.review_status === 2 &&
+      req.body.text_editor_save === undefined
+    ) {
       PublishedArticlesData.updateOne(
         { linking_key: req.body._id },
         {
@@ -55,7 +54,7 @@ app.post("/edit_article_title", (req, res) => {
           email: req.body.email,
           title: req.body.title,
           article_html: req.body.article_html,
-          ops_array:req.body.ops_array
+          ops_array: req.body.ops_array,
         },
         { upsert: true } //act as insert if no match is found
       )
@@ -67,8 +66,7 @@ app.post("/edit_article_title", (req, res) => {
         });
     }
 
-    
-// If req.body.publish_status is undefined in your code, the updateOne operation will still proceed, and the existing publish_status field in the document will not be modified.
+    // If req.body.publish_status is undefined in your code, the updateOne operation will still proceed, and the existing publish_status field in the document will not be modified.
     ArticlesData.updateOne(
       { unique_key: key },
       {
@@ -76,10 +74,10 @@ app.post("/edit_article_title", (req, res) => {
         author: req.body.author,
         title: req.body.title,
         review_status: req.body.review_status,
-        publish_status:req.body.publish_status,
-        date:Date.now(),
+        publish_status: req.body.publish_status,
+        date: Date.now(),
         ops_array: req.body.ops_array,
-        article_html: req.body.article_html,//it html string for the incoming object
+        article_html: req.body.article_html, //it html string for the incoming object
       },
       { upsert: true } //act as insert if no match is found
     )
@@ -89,11 +87,11 @@ app.post("/edit_article_title", (req, res) => {
       .catch((err) => {
         console.error("save_article post", err);
       });
-  
+
     res.end(); //always end a request by send,end,status etc,else it doesn't end by itself
     //end gives status 200 with empty data
   });
-  
+
   //using async await alternative
   // const find_published_articles = async (match) => {
   //   try {
@@ -102,7 +100,7 @@ app.post("/edit_article_title", (req, res) => {
   //         path: "linking_key",
   //         select: "author review_status",
   //       });
-  
+
   //     const joint_data = result.map((res) => {
   //       const jd = {
   //         article_html: res.article_html,
@@ -113,7 +111,7 @@ app.post("/edit_article_title", (req, res) => {
   //       };
   //       return jd;
   //     });
-  
+
   //     console.log("joint result of two models", joint_data);
   //     return joint_data;
   //   } catch (err) {
@@ -121,10 +119,10 @@ app.post("/edit_article_title", (req, res) => {
   //     return [{}];
   //   }
   // };
-  
+
   // app.get("/retrieve_article", async (req, res) => {
   //   let match = {};
-  
+
   //   try {
   //     if (req.query.all_blogs_review_status) {
   //       //for published articles request from AllBlogs page
@@ -151,13 +149,13 @@ app.post("/edit_article_title", (req, res) => {
   //     res.status(500).send('Internal Server Error');
   //   }
   // });
-  
+
   const find_published_articles = (match) => {
     // in JavaScript, the function specified in the .then method returns a new promise. This behavior is central to the chaining capability provided by promises.
     return PublishedArticlesData.find(match)
       .populate({
         path: "linking_key", //the path we want to populate,i.e., the foreign key like(nosql doesn't have concept of foreign key) attribute in publised article db
-        select: "author review_status publish_status email",
+        select: "author review_status publish_status email date",
       }) //Specify the path to populate
       .then((result) => {
         const joint_data = result.map((res) => {
@@ -167,14 +165,14 @@ app.post("/edit_article_title", (req, res) => {
             unique_key: res.unique_key,
             review_status: res.linking_key.review_status,
             author: res.linking_key.author,
-            publish_status:res.linking_key.publish_status,
-            ops_array:res.ops_array,
-            email:res.linking_key.email,
-            date:res.linking_key.date
+            publish_status: res.linking_key.publish_status,
+            ops_array: res.ops_array,
+            email: res.linking_key.email,
+            date: res.linking_key.date,
           };
           return jd; //this is a promise as every async function return a promise(here jd will be wrapped in a promise and then returned as we know from namaste javascript)
         });
-  
+
         console.log("joint result of two models", joint_data.length);
         return joint_data;
       })
@@ -182,21 +180,21 @@ app.post("/edit_article_title", (req, res) => {
         console.error("retrieve_article pt", err);
         return [{}];
       });
-  
+
     return "hello"; //if we don't handle the mongoose method properly which is async by default then this hello will be returned
   };
   app.get("/retrieve_article", (req, res) => {
-    let match = {};//match will remain empty and all articles will be fetched if no case is hit
-  
+    let match = {}; //match will remain empty and all articles will be fetched if no case is hit
+
     if (req.query.all_blogs_publish_status) {
       //for published articles request from AllBlogs page
-      match = {publish_status: req.query.publish_status };
+      match = { publish_status: req.query.publish_status };
       //when the promise resolves the result of promise is used by the .then method
       find_published_articles(match).then((jd) => {
         res.send(jd);
       });
     } else {
-      //retrieve published for display and also for reverting 
+      //retrieve published for display and also for reverting
       if (req.query.published_key) {
         match = { unique_key: req.query.published_key };
         find_published_articles(match).then((jd) => {
@@ -212,7 +210,7 @@ app.post("/edit_article_title", (req, res) => {
         ArticlesData.find(match)
           .then((result) => {
             // console.log("article retrieved", result);
-  
+
             res.send(result);
             // res.end();
           })
@@ -222,12 +220,12 @@ app.post("/edit_article_title", (req, res) => {
       }
     }
   });
-  
+
   app.get("/cf_handle_details", (req, res) => {
     const handle = req.query.cf_handle;
-  
+
     let url = CF_API + handle;
-  
+
     fetch(url)
       .then((response) => {
         if (response.ok) {
@@ -239,14 +237,107 @@ app.post("/edit_article_title", (req, res) => {
         console.log(response.result.length);
         res.send(response.result[0]);
       })
-  
+
       .catch((err) => {
         console.error("cf_handle_details", "something wrong with cf api", err);
         res.end();
       });
   });
 
+  app.post("/create_comment", (req, res) => {
+    let ct = req.body;
+    CommentsData.create(
+      {
+        article_unique_key:ct.unique_key,
+        user: ct.user,
+        content: ct.content,
+        
+      })
+        .then(async (result) => {
+          console.log("post comment", result);
+          try{
+          res.send(result)//the whole document is returned
+          }
+          catch(err)
+          {
+            console.log("post comment 1", err);
+            res.end();
+          }
+        })
+        .catch((err) => {
+          console.log("post comment", err);
+          res.end();
+        })
+    
+  
+  });
 
-}
+  app.post("/create_reply", (req, res) => {
+    let ct = req.body;
+    console.log('test',ct)
+    CommentsData.create(
+      {
+        article_unique_key:ct.unique_key,
+        user: ct.user,
+        content: ct.content,
+        parent_id:ct.parent_id,
+      })
+        .then(async (result) => {
+          console.log("post create reply", result);
+          try{
+          const result1 =await CommentsData.updateOne(
+            { _id: ct.parent_id },
+            { $push: { replies: result._id } })
 
-module.exports=blogBackend
+            console.log('post create reply 1',result1)
+            const doc=await CommentsData.findOne({_id:result._id})
+
+            res.send(doc)
+          }
+          catch(err)
+          {
+            console.log("post create reply ", err);
+            res.end();
+          }
+        })
+        .catch((err) => {
+          console.log("post comment", err);
+          res.end();
+        })
+    
+  
+  });
+
+  app.get("/retrieve_comments", (req, res) => {
+    
+    CommentsData.find(
+      {article_unique_key:req.query.unique_key,parent_id:null}
+    )
+      .then((result) => {
+        console.error("retrieve comments", result);
+        res.send(result)//array
+      })
+      .catch((err) => {
+        console.error("retrieve comments", err);
+        res.end();
+      });
+    
+  });
+
+
+app.get("/retrieve_replies", (req, res) => {
+    
+  CommentsData.find(
+    {parent_id:req.query.parent_id}
+  )
+    .then((result) => {
+      console.error("retrieve replies", result);
+      res.send(result)//array
+    })
+    .catch((err) => {
+      console.error("retrieve replies", err);
+      res.end();
+    });
+});
+};
+module.exports = blogBackend;

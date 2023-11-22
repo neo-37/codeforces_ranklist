@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
-import { useLocation, Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import htmlParser from "html-react-parser";
 import axios from "axios";
 import { BeatLoader } from "react-spinners";
 import CfHandleColor from "../multipurpose_components/CfHandleColor";
-import UrlNotFound from "../UrlNotFound";
+import { CommentForm } from "./feedback_components/CommentForm";
+import { CommentList } from "./feedback_components/CommentList";
 
-function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
+
+
+function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin,cf_user }) {
   const [curHtml, setCurHtml] = useState(<></>);
   const [article, setarticle] = useState(null);
   const [articleDate, setArticleDate] = useState(null);
+  const [comments, setComments] = useState(null);
 
   const navigate = useNavigate();
   let { review_article_id, article_id, published_article_id } = useParams();
@@ -115,8 +119,8 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
   };
   const [cfcolor, setCfcolor] = useState(null);
 
-  const get_cf_handle_details = async () => {
-    await axios
+  const get_cf_handle_details =() => {
+    axios
       .get(`${url}/cf_handle_details`, {
         params: { cf_handle: article.author },
       })
@@ -129,6 +133,35 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
       })
       .catch((err) => {
         console.log("get cf handle details DisplayArticle", err);
+      });
+  };
+
+  const onCommentCreate = async(message) => {
+    axios
+      .post(`${url}/create_comment`, {
+        unique_key: article.unique_key,
+        content: message,
+        user: cf_user.cf_handle
+      })
+      .then( ({data}) => {
+        console.log(" onCommentCreate", data);
+        //await retrieveCommentsFromServer()
+        setComments([...comments, data])
+      })
+      .catch((err) => {
+        console.log("onCommentCreate", err);
+      });
+    
+  };
+  const retrieveCommentsFromServer = async () => {
+    axios
+      .get(`${url}/retrieve_comments`,{params:{unique_key:db_valid_article_id}})
+      .then(({ data }) => {
+       setComments(data);
+       console.log('retrieve comments',data)
+      })
+      .catch((err) => {
+        console.log("retrieve comments", err);
       });
   };
 
@@ -159,6 +192,7 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
     setBlogButtonText("My Blogs");
 
     retrieveArticleFromServer(db_valid_article_id);
+    retrieveCommentsFromServer(db_valid_article_id);
 
     console.log("review article id", db_valid_article_id, article);
   }, []);
@@ -181,21 +215,24 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
         <>
           <div
             style={{
-             
               marginLeft: "8rem",
               marginRight: "8rem",
               paddingBottom: "2rem",
             }}
           >
             <div style={{ textAlign: "center" }}>
-              <h1 className=" fst-italic pb-2 border-bottom">{article.title}</h1>
+              <h1 className=" fst-italic pb-2 border-bottom">
+                {article.title}
+              </h1>
             </div>
             <div
               className=""
               style={{ display: "flex", justifyContent: "space-between" }}
             >
               <div style={{ marginLeft: "auto" }}>
-                <h4>By {cfcolor ? <CfHandleColor value={cfcolor} /> : article.author}
+                <h4>
+                  By{" "}
+                  {cfcolor ? <CfHandleColor value={cfcolor} /> : article.author}
                 </h4>
                 <p>
                   {articleDate
@@ -213,7 +250,7 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
             className="container"
             style={{
               alignItems: "center",
-              padding: "0rem 8rem 3rem 4rem",
+              paddingBottom: "2rem",
               borderRadius: "5px",
               //margin issues are due to border box property of main div,but it is also essential for leaderboard
             }}
@@ -248,6 +285,18 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin }) {
             ) : (
               <></>
             )}
+          </div>
+          <div className=" comment-container">
+            <h3 className=" comments-title">Comments</h3>
+
+            <div className="comment-area">
+              <CommentForm onSubmit={onCommentCreate} />
+              {comments != null && comments.length > 0 && (
+          <div className="mt-4">
+           <CommentList comments={comments} />
+          </div>
+        )}
+            </div>
           </div>
         </>
       )}

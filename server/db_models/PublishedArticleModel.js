@@ -24,7 +24,7 @@ const publisedArticleSchema = new mongoose.Schema({
     type: String,
     default: "<p><br/></p>",
     required:true
-  }
+  },
 });
 
 const PublishedArticlesData = mongoose.model("publishedarticle", publisedArticleSchema);//naming convention for mongodb collections is camelCase so first letter will by default become small even if we write capital here

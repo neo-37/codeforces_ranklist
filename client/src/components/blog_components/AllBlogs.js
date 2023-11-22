@@ -1,15 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BarLoader } from "react-spinners";
-import { Link, useParams } from "react-router-dom";
 import Blogs from "./Blogs";
 
 function BlogPage({
-  g_user,
-  cf_user,
   setRenderBothBlogs,
   setBlogButtonText,
-  setAuthorColor,
   isAdmin,
 }) {
   const [articles, setarticles] = useState(null);

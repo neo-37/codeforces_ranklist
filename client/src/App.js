@@ -207,7 +207,7 @@ function App() {
               element={<DisplayArticle
                   setRenderBothBlogs={setRenderBothBlogs}
                   setBlogButtonText={setBlogButtonText}
-             
+                  cf_user={cf_user}
                   isAdmin={isAdmin}
                 />}
               />
@@ -288,7 +288,7 @@ function App() {
                 <DisplayArticle
                   setRenderBothBlogs={setRenderBothBlogs}
                   setBlogButtonText={setBlogButtonText}
-                 
+                  cf_user={cf_user}
                 />
               }
             />
@@ -300,7 +300,7 @@ function App() {
               <DisplayArticle
                 setRenderBothBlogs={setRenderBothBlogs}
                 setBlogButtonText={setBlogButtonText}
-           
+                cf_user={cf_user}
               />
             }
           />
