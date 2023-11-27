@@ -293,7 +293,7 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin,cf_user
               <CommentForm onSubmit={onCommentCreate} />
               {comments != null && comments.length > 0 && (
           <div className="mt-4">
-           <CommentList comments={comments} />
+           <CommentList comments={comments} cf_user={cf_user}/>
           </div>
         )}
             </div>

@@ -7,7 +7,7 @@ function Sideinfo(props) {
   const remove_cf_user = async () => {
     props.setCFUser(null);
     try {
-      //without avait it seems like getArr function is working before removal occurs so the old list get rerendered
+      //without await it seems like getArr function is working before removal occurs so the old list get rerendered
       await axios.get(`${url}/remove_user`, {
         withCredentials: true,
       })

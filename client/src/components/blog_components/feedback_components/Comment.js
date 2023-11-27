@@ -9,16 +9,19 @@ import  axios  from "axios";
 export function Comment({
   _id,
   content,
-  user,
+  user,//cf_handle of commentor
   createdAt,
   updatedAt,
   like_count,
   liked_by_me,
   article_unique_key,
+  cf_user
 }) {
   const [areChildrenHidden, setAreChildrenHidden] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [likeCount,setLikeCount]=useState(like_count)
+  const [likedByMe,setLikedByMe]=useState(liked_by_me)
 
   const [replies,setReplies]=useState(null)
 
@@ -55,11 +58,25 @@ setReplies([...replies,data])
   };
 
 
-  function onCommentUpdate(message) {}
+  function onCommentUpdate(message) {
+
+  }
 
   function onCommentDelete() {}
 
-  function onToggleCommentLike() {}
+  function onToggleCommentLike() {
+    if(user===cf_user.cf_handle)
+    {
+      setLikedByMe((prev)=>!prev)//the state change doesn't take effect immediately
+      if(likedByMe===true){
+        setLikeCount((prevCount) => prevCount - 1)
+      }
+      else
+      setLikeCount((prevCount) => prevCount + 1)
+    }
+    else
+    setLikeCount(likeCount+1)
+  }
 
   const dateFormatter = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
@@ -94,11 +111,10 @@ retrieveRepliesFromServer();
         <div className="footer">
           <IconBtn
             onClick={onToggleCommentLike}
-            // disabled={toggleCommentLikeFn.loading}
-            Icon={liked_by_me ? FaHeart : FaRegHeart}
-            aria-label={liked_by_me ? "Unlike" : "Like"}
+            Icon={likedByMe? FaHeart : FaRegHeart}
+            aria-label={likedByMe ? "Unlike" : "Like"}
           >
-            {like_count}
+            {likeCount}
           </IconBtn>
           <IconBtn
             onClick={() => setIsReplying((prev) => !prev)}
@@ -146,7 +162,7 @@ retrieveRepliesFromServer();
             <div className={`nested-comments ${
               areChildrenHidden ? "hide" : ""
             }`}>
-             <CommentList comments={replies} />
+             <CommentList comments={replies} cf_user={cf_user}/>
             </div>
           </div>
           <button

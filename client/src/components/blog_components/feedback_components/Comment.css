@@ -140,10 +140,14 @@ margin-right: 8rem;
   font-weight: bold;
 }
 
+
 .comment .message {
   white-space: pre-wrap;
   margin-left: .5rem;
   margin-right: .5rem;
+  word-wrap: break-word;
+  width: 70vw;
+  /* percentage not working for width i think as it is taking realtive to parent */
 }
 .comment .footer {
   display: flex;

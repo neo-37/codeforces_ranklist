@@ -274,7 +274,7 @@ const blogBackend = (app) => {
 
   app.post("/create_reply", (req, res) => {
     let ct = req.body;
-    console.log('test',ct)
+    
     CommentsData.create(
       {
         article_unique_key:ct.unique_key,
