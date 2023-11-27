@@ -11,6 +11,7 @@ export function CommentForm({
 
   function handleSubmit(e) {
     e.preventDefault()
+    if(setIsReplying)
     setIsReplying((prev) => !prev)
     onSubmit(message).then(() => setMessage(""))
   }
