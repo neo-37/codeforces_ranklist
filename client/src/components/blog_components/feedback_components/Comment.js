@@ -15,7 +15,9 @@ export function Comment({
   like_count,
   liked_by_me,
   article_unique_key,
-  cf_user
+  cf_user,
+  onCommentDelete,
+  setComments
 }) {
   const [areChildrenHidden, setAreChildrenHidden] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
@@ -59,15 +61,23 @@ setReplies([...replies,data])
 
 
   function onCommentUpdate(message) {
-
+    
   }
 
-  function onCommentDelete() {}
-
+  
   function onToggleCommentLike() {
     if(user===cf_user.cf_handle)
     {
       setLikedByMe((prev)=>!prev)//the state change doesn't take effect immediately
+      // axios
+      // .post(`${url}/current_user_like`,{_id:_id,likedByMe:!likedByMe})//getting the reply array
+      // .then(({ data }) => {
+      //  console.log('retrieve replies',data)
+      // })
+      // .catch((err) => {
+      //   console.log("retrieve replies", err);
+      // });
+
       if(likedByMe===true){
         setLikeCount((prevCount) => prevCount - 1)
       }
@@ -97,17 +107,17 @@ retrieveRepliesFromServer();
             {createdAt&&dateFormatter.format(Date.parse(createdAt))}
           </span>
         </div>
-        {/* {isEditing ? (
+        {isEditing ? (
           <CommentForm
             autoFocus
-            initialValue={message}
+            initialValue={content}
             onSubmit={onCommentUpdate}
           
           />
         ) : (
-          <div className="message">{message}</div>
-        )} */}
-        <div className="message">{content}</div>
+          <div className="message">{content}</div>
+        )}
+        
         <div className="footer">
           <IconBtn
             onClick={onToggleCommentLike}
@@ -122,7 +132,7 @@ retrieveRepliesFromServer();
             Icon={FaReply}
             aria-label={isReplying ? "Cancel Reply" : "Reply"}
           />
-          {/* {user.id === currentUser.id && (
+          {cf_user.cf_handle === user && (
             <>
               <IconBtn
                 onClick={() => setIsEditing(prev => !prev)}
@@ -130,19 +140,19 @@ retrieveRepliesFromServer();
                 Icon={FaEdit}
                 aria-label={isEditing ? "Cancel Edit" : "Edit"}
               />
-              <IconBtn
-                disabled={deleteCommentFn.loading}
+              
+            </>
+          )}
+
+          <IconBtn
+               
                 onClick={onCommentDelete}
                 Icon={FaTrash}
                 aria-label="Delete"
                 color="danger"
               />
-            </>
-          )} */}
         </div>
-        {/* {deleteCommentFn.error && (
-          <div className="error-msg mt-1">{deleteCommentFn.error}</div>
-        )} */}
+        
       </div>
       {isReplying && (
         <div className="mt-1 ml-3">
@@ -162,7 +172,7 @@ retrieveRepliesFromServer();
             <div className={`nested-comments ${
               areChildrenHidden ? "hide" : ""
             }`}>
-             <CommentList comments={replies} cf_user={cf_user}/>
+             <CommentList replies={replies} cf_user={cf_user} setReplies={setReplies}/>
             </div>
           </div>
           <button

@@ -339,5 +339,53 @@ app.get("/retrieve_replies", (req, res) => {
       res.end();
     });
 });
+
+
+async function deleteCommentAndReplies(commentId) {
+  // Find the comment by its ID
+  const comment = await CommentsData.findById(commentId);
+
+  if (!comment) {
+    // Comment not found
+    return 
+  }
+
+  // Recursively delete replies
+  for (const replyId of comment.replies) {
+    await deleteCommentAndReplies(replyId);
+  }
+
+  // Delete the current comment
+  await CommentsData.findByIdAndDelete(commentId);
+}
+
+//delete comments as following replies to the comment
+app.post("/delete_cr", (req, res) => {
+  let commentIdToDelete = req.body._id;
+  
+  deleteCommentAndReplies(commentIdToDelete)
+  .then(() => {
+    console.log('Comment and replies deleted successfully.');
+   
+  })
+  .catch((error) => {
+    console.error('Error deleting comment and replies:', error);
+  });
+  res.end();
+});
+
+
+app.post("/current_user_like", (req, res) => {
+  let ct = req.body;
+  
+CommentsData.updateOne({_id:_id},{
+  liked_by_me:ct.liked_by_me
+})
+
+res.end();
+});
 };
+
+
+
 module.exports = blogBackend;

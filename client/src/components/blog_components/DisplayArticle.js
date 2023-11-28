@@ -7,12 +7,14 @@ import CfHandleColor from "../multipurpose_components/CfHandleColor";
 import { CommentForm } from "./feedback_components/CommentForm";
 import { CommentList } from "./feedback_components/CommentList";
 
-
-
-function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin,cf_user }) {
+function DisplayArticle({
+  setRenderBothBlogs,
+  setBlogButtonText,
+  isAdmin,
+  cf_user,
+}) {
   const [curHtml, setCurHtml] = useState(<></>);
   const [article, setarticle] = useState(null);
-  const [articleDate, setArticleDate] = useState(null);
   const [comments, setComments] = useState(null);
 
   const navigate = useNavigate();
@@ -119,7 +121,7 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin,cf_user
   };
   const [cfcolor, setCfcolor] = useState(null);
 
-  const get_cf_handle_details =() => {
+  const get_cf_handle_details = () => {
     axios
       .get(`${url}/cf_handle_details`, {
         params: { cf_handle: article.author },
@@ -136,29 +138,31 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin,cf_user
       });
   };
 
-  const onCommentCreate = async(message) => {
+  const onCommentCreate = async (message) => {
     axios
       .post(`${url}/create_comment`, {
         unique_key: article.unique_key,
         content: message,
-        user: cf_user.cf_handle
+        user: cf_user.cf_handle,
       })
-      .then( ({data}) => {
+      .then(async ({ data }) => {
         console.log(" onCommentCreate", data);
-        //await retrieveCommentsFromServer()
-        setComments([...comments, data])
+        // await retrieveCommentsFromServer()
+        
+        setComments([...comments, data]);
       })
       .catch((err) => {
         console.log("onCommentCreate", err);
       });
-    
   };
   const retrieveCommentsFromServer = async () => {
     axios
-      .get(`${url}/retrieve_comments`,{params:{unique_key:db_valid_article_id}})
+      .get(`${url}/retrieve_comments`, {
+        params: { unique_key: db_valid_article_id },
+      })
       .then(({ data }) => {
-       setComments(data);
-       console.log('retrieve comments',data)
+        setComments(data);
+        console.log("retrieve comments", data);
       })
       .catch((err) => {
         console.log("retrieve comments", err);
@@ -175,13 +179,6 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin,cf_user
         navigate("..");
       else {
         setCurHtml(htmlParser(article.article_html));
-
-        const date = new Date(article.date); //Date is reserverd keyword in js
-        setArticleDate({
-          numericalDay: date.getDate(),
-          month: date.getMonth(),
-          year: date.getFullYear(),
-        });
         get_cf_handle_details();
       }
     }
@@ -196,6 +193,12 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin,cf_user
 
     console.log("review article id", db_valid_article_id, article);
   }, []);
+
+  const dateFormatter = new Intl.DateTimeFormat(undefined, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <>
@@ -235,9 +238,10 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin,cf_user
                   {cfcolor ? <CfHandleColor value={cfcolor} /> : article.author}
                 </h4>
                 <p>
-                  {articleDate
+               {dateFormatter.format(Date.parse(article.date))}
+                  {/* {articleDate
                     ? `${articleDate.numericalDay}/${articleDate.month}/${articleDate.year}`
-                    : ""}
+                    : ""} */}
                 </p>
               </div>
             </div>
@@ -286,18 +290,22 @@ function DisplayArticle({ setRenderBothBlogs, setBlogButtonText, isAdmin,cf_user
               <></>
             )}
           </div>
+          {cf_user && (
           <div className=" comment-container">
             <h3 className=" comments-title">Comments</h3>
-
-            <div className="comment-area">
-              <CommentForm onSubmit={onCommentCreate} />
-              {comments != null && comments.length > 0 && (
-          <div className="mt-4">
-           <CommentList comments={comments} cf_user={cf_user}/>
+           
+              <div className="comment-area">
+                <CommentForm onSubmit={onCommentCreate} />
+                {comments != null && comments.length > 0 && (
+                  <div className="mt-4">
+                    <CommentList comments={comments} cf_user={cf_user} setComments={setComments}/>
+                  </div>
+                )}
+              </div>
+            
           </div>
-        )}
-            </div>
-          </div>
+          )
+          }
         </>
       )}
     </>
