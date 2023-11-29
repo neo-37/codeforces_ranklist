@@ -111,7 +111,7 @@ const BlogCard = ({ article, g_user, isAdmin, handleDeleteClick }) => {
           {article.title}
         </h5>
         <p className="card-text" style={{ color: "" }}>
-          #dp
+          by {article.author}
         </p>
 
         <div style={{ display: "flex", justifyContent: "space-between" }}>

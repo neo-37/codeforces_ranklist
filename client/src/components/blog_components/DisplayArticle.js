@@ -239,9 +239,7 @@ function DisplayArticle({
                 </h4>
                 <p>
                {dateFormatter.format(Date.parse(article.date))}
-                  {/* {articleDate
-                    ? `${articleDate.numericalDay}/${articleDate.month}/${articleDate.year}`
-                    : ""} */}
+                 
                 </p>
               </div>
             </div>
@@ -295,7 +293,7 @@ function DisplayArticle({
             <h3 className=" comments-title">Comments</h3>
            
               <div className="comment-area">
-                <CommentForm onSubmit={onCommentCreate} />
+                <CommentForm onsubmit={onCommentCreate} />
                 {comments != null && comments.length > 0 && (
                   <div className="mt-4">
                     <CommentList comments={comments} cf_user={cf_user} setComments={setComments}/>

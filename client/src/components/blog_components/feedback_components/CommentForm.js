@@ -2,7 +2,7 @@ import { useState } from "react"
 import "./Comment.css"
 export function CommentForm({
  
-  onSubmit,
+  onsubmit,
   autoFocus = false,
   initialValue = "",
   setIsReplying
@@ -13,7 +13,7 @@ export function CommentForm({
     e.preventDefault()
     if(setIsReplying)
     setIsReplying((prev) => !prev)
-    onSubmit(message).then(() => setMessage(""))
+    onsubmit(message).then(() => setMessage(""))
   }
 
   return (

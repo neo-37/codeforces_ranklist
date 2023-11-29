@@ -246,146 +246,167 @@ const blogBackend = (app) => {
 
   app.post("/create_comment", (req, res) => {
     let ct = req.body;
-    CommentsData.create(
-      {
-        article_unique_key:ct.unique_key,
-        user: ct.user,
-        content: ct.content,
-        
-      })
-        .then(async (result) => {
-          console.log("post comment", result);
-          try{
-          res.send(result)//the whole document is returned
-          }
-          catch(err)
-          {
-            console.log("post comment 1", err);
-            res.end();
-          }
-        })
-        .catch((err) => {
-          console.log("post comment", err);
+    CommentsData.create({
+      article_unique_key: ct.unique_key,
+      user: ct.user,
+      content: ct.content,
+    })
+      .then(async (result) => {
+        console.log("post comment", result);
+        try {
+          res.send(result); //the whole document is returned
+        } catch (err) {
+          console.log("post comment 1", err);
           res.end();
-        })
-    
-  
+        }
+      })
+      .catch((err) => {
+        console.log("post comment", err);
+        res.end();
+      });
   });
 
   app.post("/create_reply", (req, res) => {
     let ct = req.body;
-    
-    CommentsData.create(
-      {
-        article_unique_key:ct.unique_key,
-        user: ct.user,
-        content: ct.content,
-        parent_id:ct.parent_id,
-      })
-        .then(async (result) => {
-          console.log("post create reply", result);
-          try{
-          const result1 =await CommentsData.updateOne(
+
+    CommentsData.create({
+      article_unique_key: ct.unique_key,
+      user: ct.user,
+      content: ct.content,
+      parent_id: ct.parent_id,
+    })
+      .then(async (result) => {
+        console.log("post create reply", result);
+        try {
+          const result1 = await CommentsData.updateOne(
             { _id: ct.parent_id },
-            { $push: { replies: result._id } })
+            { $push: { replies: result._id } }
+          );
 
-            console.log('post create reply 1',result1)
-            const doc=await CommentsData.findOne({_id:result._id})
+          console.log("post create reply 1", result1);
+          const doc = await CommentsData.findOne({ _id: result._id });
 
-            res.send(doc)
-          }
-          catch(err)
-          {
-            console.log("post create reply ", err);
-            res.end();
-          }
-        })
-        .catch((err) => {
-          console.log("post comment", err);
+          res.send(doc);
+        } catch (err) {
+          console.log("post create reply ", err);
           res.end();
-        })
-    
-  
+        }
+      })
+      .catch((err) => {
+        console.log("post comment", err);
+        res.end();
+      });
   });
 
-  app.get("/retrieve_comments", (req, res) => {
-    
-    CommentsData.find(
-      {article_unique_key:req.query.unique_key,parent_id:null}
+  app.post("/update_comment", (req, res) => {
+    let ct = req.body;
+
+    CommentsData.updateOne(
+      { _id: ct._id },
+      {
+        content: ct.content,
+        createdAt: new Date(),
+      },
+      { upsert: false }
     )
+      .then(async (result) => {
+        res.send(result);
+      })
+      .catch((err) => {
+        console.log("post update comment ", err);
+        res.end();
+      });
+  });
+  app.get("/retrieve_comments", (req, res) => {
+    CommentsData.find({
+      article_unique_key: req.query.unique_key,
+      parent_id: null,
+    })
       .then((result) => {
         console.error("retrieve comments", result);
-        res.send(result)//array
+        res.send(result); //array
       })
       .catch((err) => {
         console.error("retrieve comments", err);
         res.end();
       });
-    
   });
 
+  app.get("/retrieve_replies", (req, res) => {
+    CommentsData.find({ parent_id: req.query.parent_id })
+      .then((result) => {
+        console.error("retrieve replies", result);
+        res.send(result); //array
+      })
+      .catch((err) => {
+        console.error("retrieve replies", err);
+        res.end();
+      });
+  });
 
-app.get("/retrieve_replies", (req, res) => {
-    
-  CommentsData.find(
-    {parent_id:req.query.parent_id}
-  )
-    .then((result) => {
-      console.error("retrieve replies", result);
-      res.send(result)//array
-    })
-    .catch((err) => {
-      console.error("retrieve replies", err);
-      res.end();
-    });
-});
+  async function deleteCommentAndReplies(commentId) {
+    // Find the comment by its ID
+    const comment = await CommentsData.findById(commentId);
 
+    if (!comment) {
+      // Comment not found
+      return;
+    }
 
-async function deleteCommentAndReplies(commentId) {
-  // Find the comment by its ID
-  const comment = await CommentsData.findById(commentId);
+    // Recursively delete replies
+    for (const replyId of comment.replies) {
+      await deleteCommentAndReplies(replyId);
+    }
 
-  if (!comment) {
-    // Comment not found
-    return 
+    // Delete the current comment
+    await CommentsData.findByIdAndDelete(commentId);
   }
 
-  // Recursively delete replies
-  for (const replyId of comment.replies) {
-    await deleteCommentAndReplies(replyId);
-  }
+  //delete comments as following replies to the comment
+  app.post("/delete_cr", (req, res) => {
+    let commentIdToDelete = req.body._id;
 
-  // Delete the current comment
-  await CommentsData.findByIdAndDelete(commentId);
-}
+    deleteCommentAndReplies(commentIdToDelete)
+      .then(() => {
+        console.log("Comment and replies deleted successfully.");
+      })
+      .catch((error) => {
+        console.error("Error deleting comment and replies:", error);
+      });
+    res.end();
+  });
 
-//delete comments as following replies to the comment
-app.post("/delete_cr", (req, res) => {
-  let commentIdToDelete = req.body._id;
-  
-  deleteCommentAndReplies(commentIdToDelete)
-  .then(() => {
-    console.log('Comment and replies deleted successfully.');
+  app.post("/user_like", async (req, res) => {
+    let ct = req.body;
+
+    await CommentsData.updateOne(
+      { _id: ct._id },
+      {
+        like_count: ct.like_count,
+      }
+    );
+    let comment = await CommentsData.findOne({ _id: ct._id }); //if using await then we don't need to use exec
+    let array = comment.like_details;
    
-  })
-  .catch((error) => {
-    console.error('Error deleting comment and replies:', error);
+    if (ct.remove_user) {
+      
+      const stringToRemove = ct.cf_handle;
+
+      const indexToRemove = array.indexOf(stringToRemove);
+      if (indexToRemove !== -1) {
+        array.splice(indexToRemove, 1);
+      }
+    }
+    else
+    {
+       array.push(ct.cf_handle);
+    }
+    comment.like_details = array;
+
+    await CommentsData.updateOne({ _id: ct._id }, comment);
+   
+    res.end();
   });
-  res.end();
-});
-
-
-app.post("/current_user_like", (req, res) => {
-  let ct = req.body;
-  
-CommentsData.updateOne({_id:_id},{
-  liked_by_me:ct.liked_by_me
-})
-
-res.end();
-});
 };
-
-
 
 module.exports = blogBackend;

@@ -26,18 +26,19 @@ const commentSchema = new mongoose.Schema(
         default: null,
       },
     ],
-    like_count: {
-      type: Number,
-      default: 0,
+    like_count:{
+      type:Number,
+      default:0
     },
-    liked_by_me: {
-      type: Boolean,
-      default: false,
+    like_details: {
+      type: [String], // Array of strings
+      default: [], // Default value is an empty array
     },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
-  {
-    timestamps: true,
-  }
+}
 );
 
 const Comment = mongoose.model("comment", commentSchema);
