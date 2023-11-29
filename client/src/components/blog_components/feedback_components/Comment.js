@@ -34,7 +34,7 @@ export function Comment({
         parent_id: _id,
         unique_key: article_unique_key,
         content: message,
-        user: user,
+        user: cf_user.cf_handle,
       })
       .then(({ data }) => {
         console.log(" onReply", data);
